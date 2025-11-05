@@ -1,0 +1,13 @@
+{
+  "java.project.referencedLibraries": [
+    "lib/**/*.jar",
+    "/Users/floriandeschambres/Documents/javafx/lib/javafx-swt.jar",
+    "/Users/floriandeschambres/Documents/javafx/lib/javafx.base.jar",
+    "/Users/floriandeschambres/Documents/javafx/lib/javafx.controls.jar",
+    "/Users/floriandeschambres/Documents/javafx/lib/javafx.fxml.jar",
+    "/Users/floriandeschambres/Documents/javafx/lib/javafx.graphics.jar",
+    "/Users/floriandeschambres/Documents/javafx/lib/javafx.media.jar",
+    "/Users/floriandeschambres/Documents/javafx/lib/javafx.swing.jar",
+    "/Users/floriandeschambres/Documents/javafx/lib/javafx.web.jar"
+  ]
+}

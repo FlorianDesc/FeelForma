@@ -1,0 +1,13 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "type": "java",
+      "name": "MainApp",
+      "request": "launch",
+      "mainClass": "fr.ubordeaux.m1.app.MainApp",
+      "projectName": "PROJET_268c33b5",
+      "vmArgs": "--module-path /Users/floriandeschambres/Documents/javafx/lib --add-modules javafx.controls,javafx.fxml"
+    }
+  ]
+}
