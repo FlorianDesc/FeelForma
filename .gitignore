@@ -1,0 +1,18 @@
+# IDE specific files and folders
+.vscode/
+.idea/
+*.iml
+*.iws
+.settings/
+.classpath
+.project
+
+# Compiled files and build directories
+bin/
+out/
+target/
+build/
+
+# OS specific files
+.DS_Store
+Thumbs.db
