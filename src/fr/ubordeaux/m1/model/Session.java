@@ -1,4 +1,4 @@
-package fr.ubordeaux.m1.app.model;
+package fr.ubordeaux.m1.model;
 
 import java.time.LocalDate;
 import java.util.ArrayList;

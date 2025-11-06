@@ -1,4 +1,4 @@
-package fr.ubordeaux.m1.app.model;
+package fr.ubordeaux.m1.model;
 
 import java.util.ArrayList;
 import java.util.List;

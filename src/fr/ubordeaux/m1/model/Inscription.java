@@ -1,9 +1,7 @@
-package fr.ubordeaux.m1.app.model;
+package fr.ubordeaux.m1.model;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.LinkedList;
-import java.util.List;
 import java.util.Queue;
 
 /**

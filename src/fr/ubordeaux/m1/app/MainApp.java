@@ -11,6 +11,7 @@ public class MainApp extends Application{
     public static void main(String[] args) {
         // Démarre l'application JavaFX
         launch(args);
+    
     }
 
     @Override
@@ -23,5 +24,5 @@ public class MainApp extends Application{
         stage.setTitle("Centre de Formation - MIAGE");
         stage.setScene(scene);
         stage.show();
-    }
+    } 
 }
