@@ -1,28 +1,24 @@
 package fr.ubordeaux.m1.app;
 
+import fr.ubordeaux.m1.view.AccueilView;
 import javafx.application.Application;
-import javafx.scene.Scene;
-import javafx.scene.control.Label;
-import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 
-public class MainApp extends Application{
+/**
+ * Main application entry. Keeps startup logic minimal and delegates UI to views.
+ */
+public class MainApp extends Application {
 
     public static void main(String[] args) {
-        // Démarre l'application JavaFX
         launch(args);
-    
     }
 
     @Override
     public void start(Stage stage) {
-        // Simple scene for testing app startup
-        Label label = new Label("Centre de Formation - MIAGE — JavaFX démarré !");
-        StackPane root = new StackPane(label);
-        Scene scene = new Scene(root, 640, 480);
-
-        stage.setTitle("Centre de Formation - MIAGE");
-        stage.setScene(scene);
+        AccueilView accueilView = new AccueilView(stage);
+        stage.setTitle("FeelForma");
+        // Use StageUtils to set the initial scene and maximize the window consistently
+        fr.ubordeaux.m1.util.StageUtils.setSceneAndMaximize(stage, accueilView.getScene());
         stage.show();
-    } 
+    }
 }
