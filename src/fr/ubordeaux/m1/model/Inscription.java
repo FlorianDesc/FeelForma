@@ -2,6 +2,7 @@ package fr.ubordeaux.m1.model;
 
 import java.time.LocalDateTime;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Queue;
 
 /**
@@ -13,6 +14,8 @@ public class Inscription {
     private LocalDateTime dateInscription;
     private EtatInscription etat;
     private static Queue<Inscription> listeAttente = new LinkedList<>();
+
+    private final List<InscriptionListener> listeners = new LinkedList<>();
 
     /**
      * Énumération des différents états possibles d'une inscription
@@ -32,6 +35,19 @@ public class Inscription {
         this.session = session;
         this.apprenant = apprenant;
         this.dateInscription = LocalDateTime.now();
+    }
+
+    // --- Gestion des listeners ---
+    public void addListener(InscriptionListener listener) {
+        listeners.add(listener);
+    }
+    public void removeListener(InscriptionListener listener) {
+        listeners.remove(listener);
+    }
+    private void notifyListeners() {
+        for (InscriptionListener listener : listeners) {
+            listener.inscriptionConfirmed(this);
+        }
     }
 
     // Getters et Setters

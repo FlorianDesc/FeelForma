@@ -5,9 +5,10 @@ package fr.ubordeaux.m1.model;
  * Implémente le pattern Observer.
  */
 public interface ApprenantListener {
-    /**
-     * Méthode appelée lorsque les données d'un apprenant sont modifiées.
-     * @param source l'apprenant ayant déclenché la notification
-     */
     void apprenantUpdated(Apprenant source);
+    void apprenantionAdded(Apprenant source);
+    void apprenantionRemoved(Apprenant source);
+
+    void sessionFormaAdded(Apprenant source, Session session);
+    void sessionFormaRemoved(Apprenant source, Session session);
 }

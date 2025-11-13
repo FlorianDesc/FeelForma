@@ -16,6 +16,8 @@ public class Session {
     private List<Apprenant> inscrits;
     private EtatSession etat;
 
+    private final List<SessionListener> listeners = new ArrayList<>();
+
     /**
      * Énumération des différents états possibles d'une session
      */
@@ -45,6 +47,19 @@ public class Session {
         this.etat = EtatSession.OUVERTE;
     }
 
+    // --- Gestion des listeners ---
+    public void addListener(SessionListener listener) {
+        listeners.add(listener);
+    }
+    public void removeListener(SessionListener listener) {
+        listeners.remove(listener);
+    }
+    private void notifyListeners() {
+        for (SessionListener listener : listeners) {
+            listener.sessionUpdated(this);
+        }
+    }
+    
     // Getters et Setters
     public Formation getFormation() {
         return formation;

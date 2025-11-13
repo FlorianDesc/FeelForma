@@ -12,6 +12,8 @@ public class Formation {
     private String categorie;
     private List<Session> sessions;
 
+    private final List<FormationListener> listeners = new ArrayList<>();
+
     /**
      * Constructeur de la classe Formation
      * @param titre le titre de la formation
@@ -23,6 +25,19 @@ public class Formation {
         this.duree = duree;
         this.categorie = categorie;
         this.sessions = new ArrayList<>();
+    }
+
+    // --- Gestion des listeners ---
+    public void addListener(FormationListener listener) {
+        listeners.add(listener);
+    }
+    public void removeListener(FormationListener listener) {
+        listeners.remove(listener);
+    }
+    private void notifyListeners() {
+        for (FormationListener listener : listeners) {
+            listener.formationUpdated(this);
+        }
     }
 
     // Getters et Setters

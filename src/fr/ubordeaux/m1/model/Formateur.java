@@ -11,6 +11,8 @@ public class Formateur {
     private String prenom;
     private List<String> specialites;
 
+    private final List<FormateurListener> listeners = new ArrayList<>();
+
     /**
      * Constructeur de la classe Formateur
      * @param nom le nom du formateur
@@ -20,6 +22,21 @@ public class Formateur {
         this.nom = nom;
         this.prenom = prenom;
         this.specialites = new ArrayList<>();
+    }
+
+    // --- Gestion des listeners ---
+    public void addListener(FormateurListener listener) {
+        listeners.add(listener);
+    }
+
+    public void removeListener(FormateurListener listener) {
+        listeners.remove(listener);
+    }
+
+    private void notifyListeners() {
+        for (FormateurListener listener : listeners) {
+            listener.formateurUpdated(this);
+        }
     }
 
     // Getters et Setters
