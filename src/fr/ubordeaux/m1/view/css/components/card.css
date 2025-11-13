@@ -1,7 +1,0 @@
-/* Card component styles */
-.card {
-  -fx-background-color: white;
-  -fx-border-radius: 8px;
-  -fx-background-radius: 8px;
-  -fx-effect: dropshadow(gaussian, rgba(16, 24, 40, 0.04), 8, 0, 0, 2);
-}
