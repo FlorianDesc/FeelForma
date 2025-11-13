@@ -30,24 +30,12 @@ public class Formation {
         return titre;
     }
 
-    public void setTitre(String titre) {
-        this.titre = titre;
-    }
-
     public int getDuree() {
         return duree;
     }
 
-    public void setDuree(int duree) {
-        this.duree = duree;
-    }
-
     public String getCategorie() {
         return categorie;
-    }
-
-    public void setCategorie(String categorie) {
-        this.categorie = categorie;
     }
 
     @Override

@@ -24,5 +24,5 @@ public class MainApp extends Application{
         stage.setTitle("Centre de Formation - MIAGE");
         stage.setScene(scene);
         stage.show();
-    } 
+    }
 }

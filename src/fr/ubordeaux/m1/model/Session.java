@@ -50,40 +50,20 @@ public class Session {
         return formation;
     }
 
-    public void setFormation(Formation formation) {
-        this.formation = formation;
-    }
-
     public Formateur getFormateur() {
         return formateur;
-    }
-
-    public void setFormateur(Formateur formateur) {
-        this.formateur = formateur;
     }
 
     public LocalDate getDateDebut() {
         return dateDebut;
     }
 
-    public void setDateDebut(LocalDate dateDebut) {
-        this.dateDebut = dateDebut;
-    }
-
     public LocalDate getDateFin() {
         return dateFin;
     }
 
-    public void setDateFin(LocalDate dateFin) {
-        this.dateFin = dateFin;
-    }
-
     public int getNbPlacesMax() {
         return nbPlacesMax;
-    }
-
-    public void setNbPlacesMax(int nbPlacesMax) {
-        this.nbPlacesMax = nbPlacesMax;
     }
 
     public List<Apprenant> getInscrits() {
@@ -92,10 +72,6 @@ public class Session {
 
     public EtatSession getEtat() {
         return etat;
-    }
-
-    public void setEtat(EtatSession etat) {
-        this.etat = etat;
     }
 
     @Override
