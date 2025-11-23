@@ -2,8 +2,9 @@ package fr.ubordeaux.m1.app;
 
 import java.time.LocalDate;
 
+import fr.ubordeaux.m1.controller.ApprenantController;
 import fr.ubordeaux.m1.controller.FormationController;
-import fr.ubordeaux.m1.controller.SessionController;
+import fr.ubordeaux.m1.model.Apprenant;
 import fr.ubordeaux.m1.model.Formateur;
 import fr.ubordeaux.m1.model.Formation;
 import fr.ubordeaux.m1.model.Session;
@@ -48,6 +49,25 @@ public class Main extends Application {
         // Supprimer la formation via le contrôleur
         formationController.supprimerFormation(formation);
         System.out.println("Formations restantes : " + formationController.getFormations().size());
+
+        
+        // --- TEST Apprenant et historique des sessions suivies ---
+        ApprenantController apprenantController = new ApprenantController();
+        Apprenant apprenant = new Apprenant("Martin", "Alice", "1 rue du Test", "0600000000", "alice.martin@mail.com");
+        apprenant.addListener(apprenantController);
+
+        // Ajout d'une session suivie
+        apprenant.ajouterSessionSuivie(session);
+
+        // Affichage de l'historique (doit être à 1)
+        System.out.println("Historique des sessions suivies par " + apprenant.getPrenom() + " : " + apprenant.getSessionsSuivies().size());
+
+        // Retrait de la session suivie
+        apprenant.retirerSessionSuivie(session);
+
+        // Affichage de l'historique (doit être vide)
+        System.out.println("Historique des sessions suivies par " + apprenant.getPrenom() + " : " + apprenant.getSessionsSuivies().size());
+
 
         // create counter model + controller and bind to the view
         fr.ubordeaux.m1.model.Counter counter = new fr.ubordeaux.m1.model.Counter(0);

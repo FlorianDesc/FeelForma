@@ -15,6 +15,7 @@ public class Apprenant {
     private String email;
 
     private final List<ApprenantListener> listeners = new ArrayList<>();
+    private final List<Session> sessionsSuivies = new ArrayList<>();
 
     /**
      * Constructeur d'un apprenant.
@@ -32,19 +33,33 @@ public class Apprenant {
         this.email = email;
     }
 
-    // --- Gestion des listeners ---
+    public void ajouterSessionSuivie(Session session) {
+        if (!sessionsSuivies.contains(session)) {
+            sessionsSuivies.add(session);
+            for (ApprenantListener listener : listeners) {
+                listener.sessionFormaAdded(this, session);
+            }
+        }
+    }
+
+    public void retirerSessionSuivie(Session session) {
+        if (sessionsSuivies.remove(session)) {
+            for (ApprenantListener listener : listeners) {
+                listener.sessionFormaRemoved(this, session);
+            }
+        }
+    }
+
+    public List<Session> getSessionsSuivies() {
+        return new ArrayList<>(sessionsSuivies);
+    }
+
     public void addListener(ApprenantListener listener) {
         listeners.add(listener);
     }
 
     public void removeListener(ApprenantListener listener) {
         listeners.remove(listener);
-    }
-
-    private void notifyListeners() {
-        for (ApprenantListener listener : listeners) {
-            listener.apprenantUpdated(this);
-        }
     }
 
     // --- Getters / Setters avec notification ---
