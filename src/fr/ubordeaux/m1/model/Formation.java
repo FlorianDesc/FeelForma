@@ -27,16 +27,40 @@ public class Formation {
         this.sessions = new ArrayList<>();
     }
 
+    // --- Modification groupée des propriétés ---
+    public void modifier(String nouveauTitre, int nouvelleDuree, String nouvelleCategorie) {
+        this.titre = nouveauTitre;
+        this.duree = nouvelleDuree;
+        this.categorie = nouvelleCategorie;
+        notifyFormationUpdated();
+    }
+
     // --- Gestion des listeners ---
     public void addListener(FormationListener listener) {
         listeners.add(listener);
     }
+
     public void removeListener(FormationListener listener) {
         listeners.remove(listener);
     }
-    private void notifyListeners() {
+
+    private void notifyFormationUpdated() {
         for (FormationListener listener : listeners) {
             listener.formationUpdated(this);
+        }
+    }
+
+    public void addSession(Session session) {
+        sessions.add(session);
+        for (FormationListener listener : listeners) {
+            listener.sessionAdded(this, session);
+        }
+    }
+
+    public void removeSession(Session session) {
+        sessions.remove(session);
+        for (FormationListener listener : listeners) {
+            listener.sessionRemoved(this, session);
         }
     }
 
@@ -51,6 +75,10 @@ public class Formation {
 
     public String getCategorie() {
         return categorie;
+    }
+
+    public List<Session> getSessions() {
+        return new ArrayList<>(sessions);
     }
 
     @Override

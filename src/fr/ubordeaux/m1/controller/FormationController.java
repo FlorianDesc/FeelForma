@@ -1,39 +1,67 @@
 package fr.ubordeaux.m1.controller;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import fr.ubordeaux.m1.model.Formation;
 import fr.ubordeaux.m1.model.FormationListener;
 import fr.ubordeaux.m1.model.Session;
 
 public class FormationController implements FormationListener {
-    public void formationUpdated(Formation source){
-
+    private final List<Formation> formations = new ArrayList<>();
+    
+    // --- Méthodes pour manipuler les formations ---
+    public void ajouterFormation(Formation formation) {
+        formations.add(formation);
+        formation.addListener(this);
+        formationAdded(formation);
     }
 
-    public void formationAdded(Formation source){
-
+    public void supprimerFormation(Formation formation) {
+        formations.remove(formation);
+        formationRemoved(formation);
     }
 
-    public void formationRemoved(Formation source){
-
+    public void modifierFormation(Formation formation, String titre, int duree, String categorie) {
+        formation.modifier(titre, duree, categorie);
     }
 
-    public void sessionAdded(Formation formation, Session session){
-
+    public List<Formation> getFormations() {
+        return new ArrayList<>(formations);
     }
 
-    public void sessionRemoved(Formation formation, Session session){
-
+    // --- Méthodes pour manipuler les sessions ---
+    public void ajouterSession(Formation formation, Session session) {
+        formation.addSession(session);
     }
 
-    public void sessionUpdated(Formation formation, Session session){
-        
+    public void supprimerSession(Formation formation, Session session) {
+        formation.removeSession(session);
     }
 
-    public void sessionStateChanged(Formation formation, Session session, Session.EtatSession oldState, Session.EtatSession newState){
-
+    //Listeners methods
+    @Override
+    public void formationUpdated(Formation source) {
+        System.out.println("Formation mise à jour : " + source.getTitre());
     }
 
-    public void sessionFull(Formation formation, Session session){
+    @Override
+    public void formationAdded(Formation source) {
+        System.out.println("Formation ajoutée : " + source.getTitre());
+    }
 
+    @Override
+    public void formationRemoved(Formation source) {
+        System.out.println("Formation supprimée : " + source.getTitre());
+    }
+
+    @Override
+    public void sessionAdded(Formation formation, Session session) {
+        System.out.println("Session ajoutée à " + formation.getTitre());
+    }
+
+    @Override
+    public void sessionRemoved(Formation formation, Session session) {
+        System.out.println("Session supprimée de " + formation.getTitre());
     }
 }
