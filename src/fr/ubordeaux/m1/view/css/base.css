@@ -1,0 +1,25 @@
+/* Base variables and global styles for the app */
+
+/* Define reusable properties (JavaFX allows custom -fx- properties) */
+.app-root {
+  /* colors */
+  -fx-bg-primary: #ffffff; /* bg-primary */
+  -fx-bg-secondary: #f3f3f3; /* bg-secondary */
+  -fx-text-title: #080e20; /* text-title */
+
+  -fx-bg-btn-primary: #bddbf4;
+
+  /* apply background to root */
+  -fx-background-color: -fx-bg-primary;
+}
+
+/* default font and spacing */
+.app-root {
+  -fx-font-family: "Segoe UI", system, "Helvetica Neue", Arial;
+  -fx-font-size: 14px;
+  -fx-text-fill: #0f172a;
+}
+
+.app-layout {
+  -fx-background-color: -fx-bg-primary;
+}

@@ -1,0 +1,46 @@
+/* Sidebar specific styles */
+
+.sidebar {
+  /* use primary background (white) as requested */
+  -fx-background-color: -fx-bg-primary;
+  -fx-padding: 12px 14px;
+  -fx-spacing: 10px;
+  -fx-pref-width: 220px; /* slightly narrower */
+}
+
+.sidebar-title {
+  -fx-font-size: 20px; /* slightly larger title */
+  -fx-font-weight: 800;
+  -fx-padding: 6px 0 14px 0;
+}
+
+.sidebar .btn {
+  /* let buttons expand; actual max width set in code (btn.setMaxWidth) */
+  -fx-max-width: Infinity;
+  -fx-alignment: CENTER_LEFT;
+}
+
+.sidebar .btn.active {
+  -fx-background-color: derive(-fx-bg-primary, -6%);
+}
+
+.sidebar-wrapper {
+  -fx-border-style: solid;
+  -fx-border-width: 0 1px 0 0;
+  -fx-border-color: transparent #f3f3f3 transparent transparent;
+}
+
+/* --- Couleur par défaut --- */
+.btn-tertiary .icon {
+  -fx-fill: #00000084; /* gris léger */
+}
+
+/* --- Hover --- */
+.btn-tertiary:hover .icon {
+  -fx-fill: #000000ce;
+}
+
+/* --- Active --- */
+.btn-tertiary.active .icon {
+  -fx-fill: #000000;
+}
