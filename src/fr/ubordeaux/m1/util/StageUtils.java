@@ -24,9 +24,7 @@ public final class StageUtils {
 
         // Use a fixed window size instead of fullscreen/maximized so the app appears
         // at a consistent 1920x1080 on startup.
-        stage.setWidth(1920);
-        stage.setHeight(1080);
-        stage.centerOnScreen();
+        stage.setMaximized(true);
     }
 
     private static void addIfFound(Scene scene, String resourcePath) {
