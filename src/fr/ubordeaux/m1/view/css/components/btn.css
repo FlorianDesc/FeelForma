@@ -66,3 +66,23 @@
   -fx-text-fill: #000000;
   -fx-font-weight: 700;
 }
+
+.btn-destructive {
+  -fx-background-color: #ef4444; /* rouge Tailwind 500 */
+  -fx-text-fill: white;
+  -fx-border-color: transparent;
+}
+
+.btn-destructive:hover {
+  -fx-background-color: #dc2626; /* rouge 600 */
+}
+
+.btn-destructive:pressed {
+  -fx-background-color: #b91c1c; /* rouge 700 */
+}
+
+/* Le texte interne */
+.btn-destructive .btn-text {
+  -fx-text-fill: white;
+  -fx-font-weight: 600;
+}

@@ -14,75 +14,69 @@ import javafx.scene.layout.VBox;
 public class SidebarView {
 
     private final VBox root;
-    private final CustomButton btnApprenant;
     private final CustomButton btnFormation;
+    private final CustomButton btnSession;
 
     public SidebarView() {
-
         root = new VBox(12);
         root.setPadding(new Insets(12));
-        root.getStyleClass().add("sidebar");
-        root.setFillWidth(true);
 
-        // Title
+        // Largeur fixe ajustée
+        root.setPrefWidth(200);
+        root.setMinWidth(200);
+        root.setMaxWidth(200);
+
         Label title = new Label("FeelForma");
         title.getStyleClass().add("sidebar-title");
 
-        // --- Apprenants ---
-        btnApprenant = new CustomButton("", Variant.TERTIARY, Size.MD);
-        btnApprenant.setMaxWidth(Double.MAX_VALUE);
-        btnApprenant.setGraphic(createButtonContent(
-            Icons.user(20),
-            "Apprenants"
-        ));
-
-        // --- Formations ---
+        // === Bouton Formations ===
         btnFormation = new CustomButton("", Variant.TERTIARY, Size.MD);
-        btnFormation.setMaxWidth(Double.MAX_VALUE);
-        btnFormation.setGraphic(createButtonContent(
-            Icons.book(20),
-            "Formations"
-        ));
+        btnFormation.setMaxWidth(Double.MAX_VALUE);  // FULL WIDTH
+        btnFormation.setGraphic(createButtonContent(Icons.book(20), "Formations"));
 
+        // === Bouton Sessions ===
+        btnSession = new CustomButton("", Variant.TERTIARY, Size.MD);
+        btnSession.setMaxWidth(Double.MAX_VALUE);   // FULL WIDTH
+        btnSession.setGraphic(createButtonContent(Icons.user(20), "Sessions"));
 
-        setActive("apprenant");
+        setActive("formation");
 
-        root.getChildren().addAll(title, btnApprenant, btnFormation);
+        root.getChildren().addAll(title, btnFormation, btnSession);
     }
 
     public Node getNode() {
         return root;
     }
 
-    public void setOnApprenant(Runnable r) {
-        btnApprenant.setOnAction(e -> r.run());
-    }
-
     public void setOnFormation(Runnable r) {
         btnFormation.setOnAction(e -> r.run());
     }
 
-    private Node createButtonContent(Node icon, String text) {
-        HBox box = new HBox(10);
-
-        Label label = new Label(text);
-        label.getStyleClass().add("sidebar-btn-text"); // <-- AJOUT ESSENTIEL
-
-        HBox.setHgrow(label, Priority.ALWAYS);
-        box.getChildren().addAll(icon, label);
-
-        return box;
+    public void setOnSession(Runnable r) {
+        btnSession.setOnAction(e -> r.run());
     }
 
     public void setActive(String key) {
-
-        btnApprenant.getStyleClass().remove("active");
         btnFormation.getStyleClass().remove("active");
+        btnSession.getStyleClass().remove("active");
 
         switch (key) {
-            case "formation" -> btnFormation.getStyleClass().add("active");
-            default -> btnApprenant.getStyleClass().add("active");
+            case "session" -> btnSession.getStyleClass().add("active");
+            default -> btnFormation.getStyleClass().add("active");
         }
     }
 
+    private Node createButtonContent(Node icon, String text) {
+        HBox box = new HBox(10);
+        box.setFillHeight(true);
+
+        Label label = new Label(text);
+        label.getStyleClass().add("sidebar-btn-text");
+
+        // Permet à la zone textuelle de s'étirer
+        HBox.setHgrow(label, Priority.ALWAYS);
+
+        box.getChildren().addAll(icon, label);
+        return box;
+    }
 }

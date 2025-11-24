@@ -8,7 +8,7 @@ import javafx.scene.control.Label;
 
 public class CustomButton extends Button {
 
-    public enum Variant { PRIMARY, SECONDARY, TERTIARY }
+    public enum Variant { PRIMARY, SECONDARY, TERTIARY, DESTRUCTIVE }
     public enum Size { SM, MD, LG }
 
     private Variant variant = Variant.SECONDARY;
@@ -20,18 +20,14 @@ public class CustomButton extends Button {
         setVariant(variant);
         setSize(size);
 
-        // === OBSERVE CHANGEMENTS DU GRAPHIC ===
+        // Observe changes to graphic
         ChangeListener<Node> listener = (obs, oldVal, newVal) -> {
-            if (newVal != null) {
-                addTextClassToLabels(newVal);
-            }
+            if (newVal != null) addTextClassToLabels(newVal);
         };
-
         graphicProperty().addListener(listener);
     }
 
     public CustomButton(String text, Variant variant) { this(text, variant, Size.MD); }
-
     public CustomButton(String text) { this(text, Variant.SECONDARY, Size.MD); }
 
 
@@ -39,8 +35,7 @@ public class CustomButton extends Button {
     private void addTextClassToLabels(Node node) {
         if (node instanceof Label label) {
             label.getStyleClass().add("btn-text");
-        }
-        else if (node instanceof Parent parent) {
+        } else if (node instanceof Parent parent) {
             for (Node child : parent.getChildrenUnmodifiable()) {
                 addTextClassToLabels(child);
             }
@@ -49,15 +44,22 @@ public class CustomButton extends Button {
 
 
     public void setVariant(Variant v) {
+        // On supprime les anciens variants
         getStyleClass().removeIf(s ->
-            s.equals("btn-primary") || s.equals("btn-secondary") || s.equals("btn-tertiary")
+            s.equals("btn-primary") ||
+            s.equals("btn-secondary") ||
+            s.equals("btn-tertiary") ||
+            s.equals("btn-destructive")
         );
+
         this.variant = v;
 
+        // On ajoute la bonne classe CSS
         switch (v) {
             case PRIMARY -> getStyleClass().add("btn-primary");
             case SECONDARY -> getStyleClass().add("btn-secondary");
             case TERTIARY -> getStyleClass().add("btn-tertiary");
+            case DESTRUCTIVE -> getStyleClass().add("btn-destructive");
         }
     }
 

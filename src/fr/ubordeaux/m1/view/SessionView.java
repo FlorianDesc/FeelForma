@@ -6,7 +6,7 @@ import javafx.scene.layout.Pane;
  * Interface représentant la vue des apprenants.
  * Elle définit les comportements que toute implémentation doit fournir.
  */
-public interface ApprenantView {
+public interface SessionView {
     Pane getRoot();
 }
 
