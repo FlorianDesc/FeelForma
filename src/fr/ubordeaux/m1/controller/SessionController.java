@@ -5,28 +5,35 @@ import fr.ubordeaux.m1.model.entities.Session;
 import fr.ubordeaux.m1.model.listeners.SessionListener;
 
 public class SessionController implements SessionListener {
-    public void sessionUpdated(Session source){
-
+    @Override
+    public void sessionUpdated(Session session) {
+        System.out.println("État mis à jour : " + session.getEtat().getLabel());
     }
 
-    public void inscriptionSessionConfirmed(Session session, Apprenant apprenant){
-
+    @Override
+    public void inscriptionSessionConfirmed(Session session, Apprenant apprenant) {
+        System.out.println("Inscription validée : " + apprenant.getNom());
     }
 
-    public void inscriptionSessionWaitlisted(Session session, Apprenant apprenant){
-
+    @Override
+    public void inscriptionSessionWaitlisted(Session session, Apprenant apprenant) {
+        System.out.println("Liste d'attente : " + apprenant.getNom());
     }
 
-    public void inscriptionSessionCancelled(Session session, Apprenant apprenant){
-
+    @Override
+    public void inscriptionSessionCancelled(Session session, Apprenant apprenant) {
+        System.out.println("Inscription refusée : " + apprenant.getNom());
     }
 
-    public void sessionFull(Session session){
-
+    @Override
+    public void sessionFull(Session session) {
+        System.out.println("Session complète !");
     }
 
-    public void sessionReopened(Session session){
-
+    @Override
+    public void sessionReopened(Session session) {
+        System.out.println("La session est réouverte.");
     }
+
 
 }

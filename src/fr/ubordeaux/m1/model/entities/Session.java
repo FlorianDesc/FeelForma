@@ -84,6 +84,14 @@ public class Session {
     public void inscrire(Apprenant apprenant) {
         etat.inscrire(apprenant);
     }
+
+    public void ajouterInscrit(Apprenant apprenant) {
+        inscrits.add(apprenant);
+    }
+
+    public boolean estPleine() {
+        return inscrits.size() >= nbPlacesMax;
+    }
     
     // Getters et Setters
     public Formation getFormation() {
