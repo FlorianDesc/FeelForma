@@ -1,7 +1,7 @@
 package fr.ubordeaux.m1.controller;
 
-import fr.ubordeaux.m1.model.Formateur;
-import fr.ubordeaux.m1.model.FormateurListener;
+import fr.ubordeaux.m1.model.entities.Formateur;
+import fr.ubordeaux.m1.model.listeners.FormateurListener;
 
 public class FormateurController implements FormateurListener {
     @Override

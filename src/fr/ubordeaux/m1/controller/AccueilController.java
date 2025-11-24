@@ -1,6 +1,6 @@
 package fr.ubordeaux.m1.controller;
 
-import fr.ubordeaux.m1.model.Apprenant;
+import fr.ubordeaux.m1.model.entities.Apprenant;
 import fr.ubordeaux.m1.view.AccueilView;
 
 /**

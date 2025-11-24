@@ -1,8 +1,9 @@
 package fr.ubordeaux.m1.controller;
 
-import fr.ubordeaux.m1.model.Formation;
-import fr.ubordeaux.m1.model.FormationListener;
-import fr.ubordeaux.m1.model.Session;
+import fr.ubordeaux.m1.model.entities.Formation;
+import fr.ubordeaux.m1.model.entities.Session;
+import fr.ubordeaux.m1.model.listeners.FormationListener;
+import fr.ubordeaux.m1.model.states.SessionState;
 
 public class FormationController implements FormationListener {
     public void formationUpdated(Formation source){
@@ -29,7 +30,7 @@ public class FormationController implements FormationListener {
         
     }
 
-    public void sessionStateChanged(Formation formation, Session session, Session.EtatSession oldState, Session.EtatSession newState){
+    public void sessionStateChanged(Formation formation, Session session, SessionState oldState, SessionState newState){
 
     }
 

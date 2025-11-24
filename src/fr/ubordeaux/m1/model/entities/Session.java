@@ -1,8 +1,12 @@
-package fr.ubordeaux.m1.model;
+package fr.ubordeaux.m1.model.entities;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+
+import fr.ubordeaux.m1.model.listeners.SessionListener;
+import fr.ubordeaux.m1.model.states.EtatOuverte;
+import fr.ubordeaux.m1.model.states.SessionState;
 
 /**
  * Classe représentant une session de formation
@@ -14,19 +18,9 @@ public class Session {
     private LocalDate dateFin;
     private int nbPlacesMax;
     private List<Apprenant> inscrits;
-    private EtatSession etat;
+    private SessionState etat;
 
     private final List<SessionListener> listeners = new ArrayList<>();
-
-    /**
-     * Énumération des différents états possibles d'une session
-     */
-    public enum EtatSession {
-        OUVERTE,
-        COMPLETE,
-        TERMINEE,
-        ANNULEE
-    }
 
     /**
      * Constructeur de la classe Session
@@ -44,7 +38,8 @@ public class Session {
         this.dateFin = dateFin;
         this.nbPlacesMax = nbPlacesMax;
         this.inscrits = new ArrayList<>();
-        this.etat = EtatSession.OUVERTE;
+        this.etat = new EtatOuverte(this);
+
     }
 
     // --- Gestion des listeners ---
@@ -58,6 +53,36 @@ public class Session {
         for (SessionListener listener : listeners) {
             listener.sessionUpdated(this);
         }
+    }
+
+    public void notifyInscriptionConfirmed(Apprenant apprenant) {
+        for (SessionListener l : listeners) l.inscriptionSessionConfirmed(this, apprenant);
+    }
+
+    public void notifyInscriptionWaitlisted(Apprenant apprenant) {
+        for (SessionListener l : listeners) l.inscriptionSessionWaitlisted(this, apprenant);
+    }
+
+    public void notifyInscriptionCancelled(Apprenant apprenant) {
+        for (SessionListener l : listeners) l.inscriptionSessionCancelled(this, apprenant);
+    }
+
+    public void notifySessionFull() {
+        for (SessionListener l : listeners) l.sessionFull(this);
+    }
+
+    public void notifySessionReopened() {
+        for (SessionListener l : listeners) l.sessionReopened(this);
+    }
+
+
+    public void changeState(SessionState etat) {
+        this.etat = etat;
+        notifyListeners();
+    }
+
+    public void inscrire(Apprenant apprenant) {
+        etat.inscrire(apprenant);
     }
     
     // Getters et Setters
@@ -85,7 +110,7 @@ public class Session {
         return inscrits;
     }
 
-    public EtatSession getEtat() {
+    public SessionState getEtat() {
         return etat;
     }
 
@@ -97,7 +122,7 @@ public class Session {
                 ", dateDebut=" + dateDebut +
                 ", dateFin=" + dateFin +
                 ", places=" + inscrits.size() + "/" + nbPlacesMax +
-                ", etat=" + etat +
+                ", etat=" + etat.getLabel() +
                 '}';
     }
 }

@@ -1,8 +1,8 @@
 package fr.ubordeaux.m1.controller;
 
-import fr.ubordeaux.m1.model.Apprenant;
-import fr.ubordeaux.m1.model.Session;
-import fr.ubordeaux.m1.model.SessionListener;
+import fr.ubordeaux.m1.model.entities.Apprenant;
+import fr.ubordeaux.m1.model.entities.Session;
+import fr.ubordeaux.m1.model.listeners.SessionListener;
 
 public class SessionController implements SessionListener {
     public void sessionUpdated(Session source){

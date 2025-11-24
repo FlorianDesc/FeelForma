@@ -1,4 +1,6 @@
-package fr.ubordeaux.m1.model;
+package fr.ubordeaux.m1.model.listeners;
+
+import fr.ubordeaux.m1.model.entities.Inscription;
 
 public interface InscriptionListener {
     void inscriptionCreated(Inscription source);

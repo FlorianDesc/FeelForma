@@ -1,7 +1,9 @@
-package fr.ubordeaux.m1.model;
+package fr.ubordeaux.m1.model.entities;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import fr.ubordeaux.m1.model.listeners.FormationListener;
 
 /**
  * Classe représentant une formation
