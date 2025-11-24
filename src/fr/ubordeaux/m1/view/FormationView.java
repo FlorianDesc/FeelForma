@@ -2,7 +2,7 @@ package fr.ubordeaux.m1.view;
 
 import java.util.List;
 
-import fr.ubordeaux.m1.model.Formation;
+import fr.ubordeaux.m1.model.entities.Formation;
 import javafx.scene.layout.Pane;
 
 /**

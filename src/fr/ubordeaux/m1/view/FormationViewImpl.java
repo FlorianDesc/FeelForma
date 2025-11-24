@@ -3,7 +3,7 @@ package fr.ubordeaux.m1.view;
 import java.util.List;
 
 import fr.ubordeaux.m1.controller.FormationController;
-import fr.ubordeaux.m1.model.Formation;
+import fr.ubordeaux.m1.model.entities.Formation;
 import fr.ubordeaux.m1.view.component.CustomButton;
 import fr.ubordeaux.m1.view.component.CustomButton.Size;
 import fr.ubordeaux.m1.view.component.CustomButton.Variant;

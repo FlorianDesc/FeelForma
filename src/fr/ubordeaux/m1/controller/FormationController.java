@@ -3,7 +3,7 @@ package fr.ubordeaux.m1.controller;
 import java.util.ArrayList;
 import java.util.List;
 
-import fr.ubordeaux.m1.model.Formation;
+import fr.ubordeaux.m1.model.entities.Formation;
 import fr.ubordeaux.m1.view.FormationView;
 
 public class FormationController {

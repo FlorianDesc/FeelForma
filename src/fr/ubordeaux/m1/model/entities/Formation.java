@@ -1,7 +1,9 @@
-package fr.ubordeaux.m1.model;
+package fr.ubordeaux.m1.model.entities;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import fr.ubordeaux.m1.model.listeners.FormationListener;
 
 /**
  * Classe représentant une formation
@@ -11,6 +13,8 @@ public class Formation {
     private int duree; // durée en heures
     private String categorie;
     private List<Session> sessions;
+
+    private final List<FormationListener> listeners = new ArrayList<>();
 
     /**
      * Constructeur de la classe Formation
@@ -25,29 +29,30 @@ public class Formation {
         this.sessions = new ArrayList<>();
     }
 
+    // --- Gestion des listeners ---
+    public void addListener(FormationListener listener) {
+        listeners.add(listener);
+    }
+    public void removeListener(FormationListener listener) {
+        listeners.remove(listener);
+    }
+    private void notifyListeners() {
+        for (FormationListener listener : listeners) {
+            listener.formationUpdated(this);
+        }
+    }
+
     // Getters et Setters
     public String getTitre() {
         return titre;
-    }
-
-    public void setTitre(String titre) {
-        this.titre = titre;
     }
 
     public int getDuree() {
         return duree;
     }
 
-    public void setDuree(int duree) {
-        this.duree = duree;
-    }
-
     public String getCategorie() {
         return categorie;
-    }
-
-    public void setCategorie(String categorie) {
-        this.categorie = categorie;
     }
 
     @Override

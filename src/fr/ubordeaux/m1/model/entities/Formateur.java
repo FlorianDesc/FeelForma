@@ -1,7 +1,9 @@
-package fr.ubordeaux.m1.model;
+package fr.ubordeaux.m1.model.entities;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import fr.ubordeaux.m1.model.listeners.FormateurListener;
 
 /**
  * Classe représentant un formateur
@@ -10,6 +12,8 @@ public class Formateur {
     private String nom;
     private String prenom;
     private List<String> specialites;
+
+    private final List<FormateurListener> listeners = new ArrayList<>();
 
     /**
      * Constructeur de la classe Formateur
@@ -22,21 +26,28 @@ public class Formateur {
         this.specialites = new ArrayList<>();
     }
 
+    // --- Gestion des listeners ---
+    public void addListener(FormateurListener listener) {
+        listeners.add(listener);
+    }
+
+    public void removeListener(FormateurListener listener) {
+        listeners.remove(listener);
+    }
+
+    private void notifyListeners() {
+        for (FormateurListener listener : listeners) {
+            listener.formateurUpdated(this);
+        }
+    }
+
     // Getters et Setters
     public String getNom() {
         return nom;
     }
 
-    public void setNom(String nom) {
-        this.nom = nom;
-    }
-
     public String getPrenom() {
         return prenom;
-    }
-
-    public void setPrenom(String prenom) {
-        this.prenom = prenom;
     }
 
     public List<String> getSpecialites() {

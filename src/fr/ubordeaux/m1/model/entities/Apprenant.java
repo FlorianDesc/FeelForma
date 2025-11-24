@@ -1,7 +1,9 @@
-package fr.ubordeaux.m1.model;
+package fr.ubordeaux.m1.model.entities;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import fr.ubordeaux.m1.model.listeners.ApprenantListener;
 
 /**
  * Classe représentant un apprenant (modèle).
@@ -52,45 +54,20 @@ public class Apprenant {
         return nom;
     }
 
-    public void setNom(String nom) {
-        this.nom = nom;
-        notifyListeners();
-    }
-
     public String getPrenom() {
         return prenom;
-    }
-
-    public void setPrenom(String prenom) {
-        this.prenom = prenom;
-        notifyListeners();
     }
 
     public String getAdresse() {
         return adresse;
     }
 
-    public void setAdresse(String adresse) {
-        this.adresse = adresse;
-        notifyListeners();
-    }
-
     public String getTelephone() {
         return telephone;
     }
 
-    public void setTelephone(String telephone) {
-        this.telephone = telephone;
-        notifyListeners();
-    }
-
     public String getEmail() {
         return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-        notifyListeners();
     }
 
     @Override
