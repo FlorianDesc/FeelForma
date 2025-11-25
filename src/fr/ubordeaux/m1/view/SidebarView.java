@@ -16,6 +16,7 @@ public class SidebarView {
     private final VBox root;
     private final CustomButton btnFormation;
     private final CustomButton btnSession;
+    private final CustomButton btnApprenants;
 
     public SidebarView() {
         root = new VBox(12);
@@ -39,9 +40,14 @@ public class SidebarView {
         btnSession.setMaxWidth(Double.MAX_VALUE);   // FULL WIDTH
         btnSession.setGraphic(createButtonContent(Icons.user(20), "Sessions"));
 
+        // === Bouton Apprenants ===
+        btnApprenants = new CustomButton("", Variant.TERTIARY, Size.MD);
+        btnApprenants.setMaxWidth(Double.MAX_VALUE);  // FULL WIDTH
+        btnApprenants.setGraphic(createButtonContent(Icons.user(20), "Apprenants"));
+
         setActive("formation");
 
-        root.getChildren().addAll(title, btnFormation);
+        root.getChildren().addAll(title, btnFormation, btnApprenants);
     }
 
     public Node getNode() {
@@ -56,12 +62,18 @@ public class SidebarView {
         btnSession.setOnAction(e -> r.run());
     }
 
+    public void setOnApprenants(Runnable r) {
+        btnApprenants.setOnAction(e -> r.run());
+    }
+
     public void setActive(String key) {
         btnFormation.getStyleClass().remove("active");
         btnSession.getStyleClass().remove("active");
+        btnApprenants.getStyleClass().remove("active");
 
         switch (key) {
             case "session" -> btnSession.getStyleClass().add("active");
+            case "apprenants" -> btnApprenants.getStyleClass().add("active");
             default -> btnFormation.getStyleClass().add("active");
         }
     }

@@ -2,6 +2,7 @@ package fr.ubordeaux.m1.view;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
 
 import fr.ubordeaux.m1.controller.NavigationController;
@@ -9,6 +10,7 @@ import fr.ubordeaux.m1.controller.SessionController;
 import fr.ubordeaux.m1.model.entities.Apprenant;
 import fr.ubordeaux.m1.model.entities.Formateur;
 import fr.ubordeaux.m1.model.entities.Formation;
+import fr.ubordeaux.m1.model.entities.Inscription;
 import fr.ubordeaux.m1.model.entities.Session;
 import fr.ubordeaux.m1.model.services.DataService;
 import fr.ubordeaux.m1.model.states.EtatAnnulee;
@@ -204,7 +206,7 @@ public class SessionViewImpl implements SessionView {
                     setGraphic(null);
                 } else {
                     Session s = getTableView().getItems().get(getIndex());
-                    label.setText(s.getInscrits().size() + " / " + s.getNbPlacesMax());
+                    label.setText(s.getNbInscrits() + " / " + s.getNbPlacesMax());
                     
                     VBox box = new VBox(5);
                     box.setAlignment(Pos.CENTER);
@@ -469,10 +471,13 @@ public class SessionViewImpl implements SessionView {
                     setText(null);
                     setStyle("");
                 } else {
-                    int index = getIndex();
-                    int placesMax = sessionPourInscription.getNbPlacesMax();
+                    Apprenant apprenant = getTableView().getItems().get(getIndex());
                     
-                    if (index < placesMax) {
+                    // Vérifier si l'apprenant est dans les inscrits confirmés ou en liste d'attente
+                    boolean estInscrit = sessionPourInscription.getInscriptions().stream()
+                        .anyMatch(i -> i.getApprenant().equals(apprenant));
+                    
+                    if (estInscrit) {
                         setText("Inscrit");
                         setStyle("-fx-text-fill: #27ae60; -fx-font-weight: bold;");
                     } else {
@@ -491,8 +496,14 @@ public class SessionViewImpl implements SessionView {
             {
                 btn.setOnAction(e -> {
                     Apprenant apprenant = getTableView().getItems().get(getIndex());
-                    sessionPourInscription.getInscrits().remove(apprenant);
-                    apprenant.retirerSessionSuivie(sessionPourInscription);
+                    // Trouver et retirer l'inscription correspondante
+                    sessionPourInscription.getInscriptions().stream()
+                        .filter(i -> i.getApprenant().equals(apprenant))
+                        .findFirst()
+                        .ifPresent(inscription -> {
+                            sessionPourInscription.libererPlace(inscription);
+                            apprenant.retirerSessionSuivie(sessionPourInscription);
+                        });
                     rafraichirFormulaireInscription();
                     updateTable(controller.getSessions());
                 });
@@ -528,24 +539,42 @@ public class SessionViewImpl implements SessionView {
     private void rafraichirFormulaireInscription() {
         if (sessionPourInscription == null) return;
         
-        int nbInscrits = sessionPourInscription.getInscrits().size();
+        int nbInscrits = sessionPourInscription.getNbInscrits();
         int nbPlacesMax = sessionPourInscription.getNbPlacesMax();
+        int nbEnAttente = sessionPourInscription.getListeAttente().size();
         int placesRestantes = nbPlacesMax - nbInscrits;
         
         // Mise à jour du label avec couleur
         String couleur = placesRestantes > 0 ? "#27ae60" : "#e74c3c";
         String statut = placesRestantes > 0 ? "Places disponibles" : "SESSION COMPLÈTE";
-        labelPlacesInscription.setText(String.format("%s : %d/%d places occupées (%d place%s restante%s)", 
-            statut, nbInscrits, nbPlacesMax, placesRestantes, 
-            placesRestantes > 1 ? "s" : "", placesRestantes > 1 ? "s" : ""));
+        String texte = String.format("%s : %d/%d places occupées", statut, nbInscrits, nbPlacesMax);
+        if (nbEnAttente > 0) {
+            texte += String.format(" (%d en attente)", nbEnAttente);
+        } else if (placesRestantes > 0) {
+            texte += String.format(" (%d place%s restante%s)", placesRestantes, 
+                placesRestantes > 1 ? "s" : "", placesRestantes > 1 ? "s" : "");
+        }
+        labelPlacesInscription.setText(texte);
         labelPlacesInscription.setStyle("-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: " + couleur + ";");
         
-        // Mise à jour du tableau des inscrits
-        tableInscritsInscription.setItems(FXCollections.observableArrayList(sessionPourInscription.getInscrits()));
+        // Mise à jour du tableau des inscrits (inscrits + liste d'attente)
+        List<Apprenant> tousLesInscrits = new ArrayList<>();
         
-        // Mise à jour du ComboBox : retirer les apprenants déjà inscrits
+        // Ajouter d'abord les inscrits confirmés
+        tousLesInscrits.addAll(sessionPourInscription.getInscriptions().stream()
+            .map(Inscription::getApprenant)
+            .toList());
+        
+        // Puis ajouter ceux en liste d'attente
+        tousLesInscrits.addAll(sessionPourInscription.getListeAttente().stream()
+            .map(Inscription::getApprenant)
+            .toList());
+        
+        tableInscritsInscription.setItems(FXCollections.observableArrayList(tousLesInscrits));
+        
+        // Mise à jour du ComboBox : retirer les apprenants déjà inscrits ou en attente
         List<Apprenant> apprenantsDisponibles = dataService.getApprenants().stream()
-            .filter(a -> !sessionPourInscription.getInscrits().contains(a))
+            .filter(a -> tousLesInscrits.stream().noneMatch(i -> i.equals(a)))
             .toList();
         fieldApprenant.setItems(FXCollections.observableArrayList(apprenantsDisponibles));
         fieldApprenant.setValue(null);

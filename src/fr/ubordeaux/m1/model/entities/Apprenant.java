@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import fr.ubordeaux.m1.model.listeners.ApprenantListener;
+import fr.ubordeaux.m1.model.listeners.NotificationListener;
 
 /**
  * Classe représentant un apprenant (modèle).
@@ -18,6 +19,8 @@ public class Apprenant {
 
     private final List<ApprenantListener> listeners = new ArrayList<>();
     private final List<Session> sessionsSuivies = new ArrayList<>();
+    private final List<Notification> notifications = new ArrayList<>();
+    private final List<NotificationListener> notificationListeners = new ArrayList<>();
 
     /**
      * Constructeur d'un apprenant.
@@ -64,6 +67,27 @@ public class Apprenant {
         listeners.remove(listener);
     }
 
+    // --- Gestion des notifications ---
+    
+    public void ajouterNotification(Notification notification) {
+        notifications.add(notification);
+        for (NotificationListener listener : notificationListeners) {
+            listener.notificationAjoutee(this, notification);
+        }
+    }
+
+    public List<Notification> getNotifications() {
+        return new ArrayList<>(notifications);
+    }
+
+    public void addNotificationListener(NotificationListener listener) {
+        notificationListeners.add(listener);
+    }
+
+    public void removeNotificationListener(NotificationListener listener) {
+        notificationListeners.remove(listener);
+    }
+
     // --- Getters / Setters avec notification ---
     public String getNom() {
         return nom;
@@ -87,6 +111,6 @@ public class Apprenant {
 
     @Override
     public String toString() {
-        return prenom + " " + nom + " (" + email + ")";
+        return prenom + " " + nom;
     }
 }

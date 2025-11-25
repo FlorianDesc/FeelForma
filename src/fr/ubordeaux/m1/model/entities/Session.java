@@ -54,6 +54,22 @@ public class Session {
         inscriptions.add(inscription);
         inscription.confirmer();
         
+        // Créer notification pour l'apprenant inscrit
+        Apprenant apprenant = inscription.getApprenant();
+        String message = String.format("Vous êtes inscrit à la session '%s' du %s au %s", 
+            formation.getTitre(), dateDebut, dateFin);
+        apprenant.ajouterNotification(new Notification(message, Notification.TypeNotification.INSCRIPTION_CONFIRMEE));
+        
+        // Notifier tous les autres inscrits qu'une nouvelle personne a rejoint
+        for (Inscription i : inscriptions) {
+            if (!i.equals(inscription)) {
+                String messageAutres = String.format("%s %s a rejoint la session '%s'", 
+                    apprenant.getPrenom(), apprenant.getNom(), formation.getTitre());
+                i.getApprenant().ajouterNotification(
+                    new Notification(messageAutres, Notification.TypeNotification.INSCRIPTION_CONFIRMEE));
+            }
+        }
+        
         if (inscriptions.size() >= nbPlacesMax) {
             changeState(new EtatComplete(this));
             notifySessionFull(this);
@@ -63,13 +79,32 @@ public class Session {
     public void mettreEnListeAttente(Inscription inscription) {
         listeAttente.offer(inscription);
         inscription.mettreEnAttente();
+        
+        // Notification pour l'apprenant mis en attente
+        Apprenant apprenant = inscription.getApprenant();
+        String message = String.format("Vous êtes en liste d'attente pour la session '%s' (session complète)", 
+            formation.getTitre());
+        apprenant.ajouterNotification(new Notification(message, Notification.TypeNotification.INSCRIPTION_EN_ATTENTE));
     }
     
     public void libererPlace(Inscription inscription) {
         inscriptions.remove(inscription);
         
+        // Notification d'annulation
+        Apprenant apprenantSortant = inscription.getApprenant();
+        String messageAnnulation = String.format("Votre inscription à la session '%s' a été annulée", 
+            formation.getTitre());
+        apprenantSortant.ajouterNotification(
+            new Notification(messageAnnulation, Notification.TypeNotification.INSCRIPTION_ANNULEE));
+        
         Inscription prochaine = listeAttente.poll();
         if (prochaine != null) {
+            // Notification pour celui qui passe de la liste d'attente aux inscrits
+            String messagePlaceLibere = String.format("Une place s'est libérée ! Vous êtes maintenant inscrit à la session '%s'", 
+                formation.getTitre());
+            prochaine.getApprenant().ajouterNotification(
+                new Notification(messagePlaceLibere, Notification.TypeNotification.PLACE_LIBEREE));
+            
             confirmerInscription(prochaine);
             notifySessionReopened(this);
         }

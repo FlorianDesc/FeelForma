@@ -10,7 +10,8 @@ public class AppLayout {
     private final StackPane root; 
     private final BorderPane main;
     private final SidebarView sidebar;
-    private final Sheet sheet;
+    private final Sheet formationSheet;
+    private final Sheet sessionSheet;
     private final Sheet inscriptionSheet;
     private final StackPane container; // ← zone où on affiche les pages
 
@@ -18,7 +19,8 @@ public class AppLayout {
         root = new StackPane();
         main = new BorderPane();
         sidebar = new SidebarView();
-        sheet = new Sheet();
+        formationSheet = new Sheet();
+        sessionSheet = new Sheet();
         inscriptionSheet = new Sheet();
         container = new StackPane(); // ← ajouter ça
         root.getStyleClass().add("app-root");
@@ -31,8 +33,8 @@ public class AppLayout {
         // Le contenu principal (qui sera remplacé par le controller)
         main.setCenter(container);
 
-        // On empile BorderPane + Sheet (pour les popups)
-        root.getChildren().addAll(main, sheet, inscriptionSheet);
+        // On empile BorderPane + Sheets (pour les popups)
+        root.getChildren().addAll(main, formationSheet, sessionSheet, inscriptionSheet);
     }
 
     public Node getRoot() {
@@ -47,8 +49,12 @@ public class AppLayout {
         return sidebar;
     }
 
-    public Sheet getSheet() {
-        return sheet;
+    public Sheet getFormationSheet() {
+        return formationSheet;
+    }
+
+    public Sheet getSessionSheet() {
+        return sessionSheet;
     }
 
     public Sheet getInscriptionSheet() {
