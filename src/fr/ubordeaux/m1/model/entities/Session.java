@@ -2,9 +2,12 @@ package fr.ubordeaux.m1.model.entities;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Queue;
 
 import fr.ubordeaux.m1.model.listeners.SessionListener;
+import fr.ubordeaux.m1.model.states.EtatComplete;
 import fr.ubordeaux.m1.model.states.EtatOuverte;
 import fr.ubordeaux.m1.model.states.SessionState;
 
@@ -17,7 +20,8 @@ public class Session {
     private LocalDate dateDebut;
     private LocalDate dateFin;
     private int nbPlacesMax;
-    private List<Apprenant> inscrits;
+    private List<Inscription> inscriptions = new ArrayList<>();
+    private Queue<Inscription> listeAttente = new LinkedList<>();
     private SessionState etat;
 
     private final List<SessionListener> listeners = new ArrayList<>();
@@ -37,89 +41,127 @@ public class Session {
         this.dateDebut = dateDebut;
         this.dateFin = dateFin;
         this.nbPlacesMax = nbPlacesMax;
-        this.inscrits = new ArrayList<>();
         this.etat = new EtatOuverte(this);
 
     }
 
-    // --- Gestion des listeners ---
+    public void inscrire(Apprenant apprenant) {
+        Inscription inscription = new Inscription(this, apprenant);
+        etat.inscrire(inscription);
+    }
+    
+    public void confirmerInscription(Inscription inscription) {
+        inscriptions.add(inscription);
+        inscription.confirmer();
+        
+        if (inscriptions.size() >= nbPlacesMax) {
+            changeState(new EtatComplete(this));
+            notifySessionFull(this);
+        }
+    }
+
+    public void mettreEnListeAttente(Inscription inscription) {
+        listeAttente.offer(inscription);
+        inscription.mettreEnAttente();
+    }
+    
+    public void libererPlace(Inscription inscription) {
+        inscriptions.remove(inscription);
+        
+        Inscription prochaine = listeAttente.poll();
+        if (prochaine != null) {
+            confirmerInscription(prochaine);
+            notifySessionReopened(this);
+        }
+    }
+
+    // --- State pattern ---
+    
+    public void changeState(SessionState newState) {
+        this.etat = newState;
+        notifyUpdate();
+    }
+
+    // --- Listeners ---
+    
     public void addListener(SessionListener listener) {
         listeners.add(listener);
     }
+
     public void removeListener(SessionListener listener) {
         listeners.remove(listener);
     }
-    private void notifyListeners() {
+    
+    private void notifyUpdate() {
         for (SessionListener listener : listeners) {
             listener.sessionUpdated(this);
         }
     }
-
+    
     public void notifyInscriptionConfirmed(Apprenant apprenant) {
-        for (SessionListener l : listeners) l.inscriptionSessionConfirmed(this, apprenant);
-    }
-
-    public void notifyInscriptionWaitlisted(Apprenant apprenant) {
-        for (SessionListener l : listeners) l.inscriptionSessionWaitlisted(this, apprenant);
-    }
-
-    public void notifyInscriptionCancelled(Apprenant apprenant) {
-        for (SessionListener l : listeners) l.inscriptionSessionCancelled(this, apprenant);
-    }
-
-    public void notifySessionFull() {
-        for (SessionListener l : listeners) l.sessionFull(this);
-    }
-
-    public void notifySessionReopened() {
-        for (SessionListener l : listeners) l.sessionReopened(this);
-    }
-
-
-    public void changeState(SessionState etat) {
-        this.etat = etat;
-        notifyListeners();
-    }
-
-    public void inscrire(Apprenant apprenant) {
-        etat.inscrire(apprenant);
-    }
-
-    public void ajouterInscrit(Apprenant apprenant) {
-        inscrits.add(apprenant);
-    }
-
-    public boolean estPleine() {
-        return inscrits.size() >= nbPlacesMax;
+        for (SessionListener listener : listeners) {
+            listener.inscriptionSessionConfirmed(this, apprenant);
+        }
     }
     
-    // Getters et Setters
+    public void notifyInscriptionWaitlisted(Apprenant apprenant) {
+        for (SessionListener listener : listeners) {
+            listener.inscriptionSessionWaitlisted(this, apprenant);
+        }
+    }
+    
+    public void notifyInscriptionCancelled(Apprenant apprenant) {
+        for (SessionListener listener : listeners) {
+            listener.inscriptionSessionCancelled(this, apprenant);
+        }
+    }
+
+    private void notifySessionFull(Session session) {
+        for (SessionListener listener : listeners) {
+            listener.sessionFull(session);
+        }
+    }
+    
+    private void notifySessionReopened(Session session) {
+        for (SessionListener listener : listeners) {
+            listener.sessionReopened(session);
+        }
+    }
+
     public Formation getFormation() {
         return formation;
     }
-
+    
     public Formateur getFormateur() {
         return formateur;
     }
-
+    
     public LocalDate getDateDebut() {
         return dateDebut;
     }
-
+    
     public LocalDate getDateFin() {
         return dateFin;
     }
-
+    
     public int getNbPlacesMax() {
         return nbPlacesMax;
     }
-
-    public List<Apprenant> getInscrits() {
-        return inscrits;
+    
+    public List<Inscription> getInscriptions() {
+        return new ArrayList<>(inscriptions);
+    }
+    
+    public Queue<Inscription> getListeAttente() {
+        return new LinkedList<>(listeAttente);
     }
 
     public SessionState getEtat() {
         return etat;
+    }
+    
+    public int getNbInscrits() {
+        return inscriptions.size();
     }
 
     @Override
@@ -129,7 +171,8 @@ public class Session {
                 ", formateur=" + formateur.getNom() +
                 ", dateDebut=" + dateDebut +
                 ", dateFin=" + dateFin +
-                ", places=" + inscrits.size() + "/" + nbPlacesMax +
+                ", nbPlacesMax=" + nbPlacesMax +
+                ", nbInscriptions=" + inscriptions.size() +
                 ", etat=" + etat.getLabel() +
                 '}';
     }

@@ -1,6 +1,6 @@
 package fr.ubordeaux.m1.model.states;
 
-import fr.ubordeaux.m1.model.entities.Apprenant;
+import fr.ubordeaux.m1.model.entities.Inscription;
 import fr.ubordeaux.m1.model.entities.Session;
 
 public class EtatOuverte implements SessionState {
@@ -11,16 +11,8 @@ public class EtatOuverte implements SessionState {
     }
 
     @Override
-    public void inscrire(Apprenant apprenant) {
-        if (session.getInscrits().size() < session.getNbPlacesMax()) {
-            session.getInscrits().add(apprenant);
-            session.notifyInscriptionConfirmed(apprenant);
-
-            if (session.getInscrits().size() == session.getNbPlacesMax()) {
-                session.changeState(new EtatComplete(session));
-                session.notifySessionFull();
-            }
-        }
+    public void inscrire(Inscription inscription) {
+        session.confirmerInscription(inscription);
     }
 
     @Override
