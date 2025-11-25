@@ -1,4 +1,6 @@
-package fr.ubordeaux.m1.model;
+package fr.ubordeaux.m1.model.listeners;
+
+import fr.ubordeaux.m1.model.entities.Formateur;
 
 public interface FormateurListener {
 

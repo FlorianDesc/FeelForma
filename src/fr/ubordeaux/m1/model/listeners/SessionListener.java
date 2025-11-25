@@ -1,4 +1,7 @@
-package fr.ubordeaux.m1.model;
+package fr.ubordeaux.m1.model.listeners;
+
+import fr.ubordeaux.m1.model.entities.Apprenant;
+import fr.ubordeaux.m1.model.entities.Session;
 
 public interface SessionListener {
     void sessionUpdated(Session source);

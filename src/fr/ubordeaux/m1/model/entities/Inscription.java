@@ -1,9 +1,11 @@
-package fr.ubordeaux.m1.model;
+package fr.ubordeaux.m1.model.entities;
 
 import java.time.LocalDateTime;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
+
+import fr.ubordeaux.m1.model.listeners.InscriptionListener;
 
 /**
  * Classe représentant une inscription à une session de formation

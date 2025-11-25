@@ -1,7 +1,7 @@
 package fr.ubordeaux.m1.controller;
 
-import fr.ubordeaux.m1.model.Inscription;
-import fr.ubordeaux.m1.model.InscriptionListener;
+import fr.ubordeaux.m1.model.entities.Inscription;
+import fr.ubordeaux.m1.model.listeners.InscriptionListener;
 
 public class InscriptionController implements InscriptionListener {
     public void inscriptionCreated(Inscription source){

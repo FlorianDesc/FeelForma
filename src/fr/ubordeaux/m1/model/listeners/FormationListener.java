@@ -1,4 +1,8 @@
-package fr.ubordeaux.m1.model;
+package fr.ubordeaux.m1.model.listeners;
+
+import fr.ubordeaux.m1.model.entities.Formation;
+import fr.ubordeaux.m1.model.entities.Session;
+import fr.ubordeaux.m1.model.states.SessionState;
 
 public interface FormationListener {
     

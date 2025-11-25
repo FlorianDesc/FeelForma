@@ -1,82 +1,27 @@
 package fr.ubordeaux.m1.app;
 
-import java.time.LocalDate;
-
-import fr.ubordeaux.m1.controller.ApprenantController;
-import fr.ubordeaux.m1.controller.FormationController;
-import fr.ubordeaux.m1.model.Apprenant;
-import fr.ubordeaux.m1.model.Formateur;
-import fr.ubordeaux.m1.model.Formation;
-import fr.ubordeaux.m1.model.Session;
-import fr.ubordeaux.m1.view.AccueilViewImpl;
+import fr.ubordeaux.m1.controller.NavigationController;
+import fr.ubordeaux.m1.util.StageUtils;
+import fr.ubordeaux.m1.view.AppLayout;
 import javafx.application.Application;
+import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 
-/**
- * Point d'entrée de l'application JavaFX.
- */
 public class Main extends Application {
 
     @Override
     public void start(Stage primaryStage) {
-        AccueilViewImpl accueilView = new AccueilViewImpl();
+        AppLayout layout = new AppLayout();
 
-        // --- TEST FormationController ---
-        FormationController formationController = new FormationController();
+        // Initialise le controller de navigation qui affichera la page par défaut
+        new NavigationController(layout);
 
-        // Créer une formation et l'ajouter via le contrôleur
-        Formation formation = new Formation("Java Avancé", 40, "Informatique");
-        formationController.ajouterFormation(formation);
+        Scene scene = new Scene((Parent) layout.getRoot(), 1920, 1080);
+        primaryStage.setTitle("Application de gestion d’un centre de formation");
+        StageUtils.setSceneAndMaximize(primaryStage, scene);
 
-        // Modifier la formation
-        formationController.modifierFormation(formation, "Java Débutant", 30, "Informatique");
-        System.out.println("Après modification : " + formation);
-
-        // Créer une session et l'ajouter via le contrôleur
-        Formateur formateur = new Formateur("Dupont", "Jean");
-        Session session = new Session(formation, formateur,
-                                      LocalDate.now(),
-                                      LocalDate.now().plusDays(5),
-                                      20);
-        formationController.ajouterSession(formation, session);
-        System.out.println("Après ajout session : " + formation.getSessions().size());
-
-        // Supprimer la session via le contrôleur
-        formationController.supprimerSession(formation, session);
-        System.out.println("Après suppression session : " + formation.getSessions().size());
-
-        // Supprimer la formation via le contrôleur
-        formationController.supprimerFormation(formation);
-        System.out.println("Formations restantes : " + formationController.getFormations().size());
-
-        
-        // --- TEST Apprenant et historique des sessions suivies ---
-        ApprenantController apprenantController = new ApprenantController();
-        Apprenant apprenant = new Apprenant("Martin", "Alice", "1 rue du Test", "0600000000", "alice.martin@mail.com");
-        apprenant.addListener(apprenantController);
-
-        // Ajout d'une session suivie
-        apprenant.ajouterSessionSuivie(session);
-
-        // Affichage de l'historique (doit être à 1)
-        System.out.println("Historique des sessions suivies par " + apprenant.getPrenom() + " : " + apprenant.getSessionsSuivies().size());
-
-        // Retrait de la session suivie
-        apprenant.retirerSessionSuivie(session);
-
-        // Affichage de l'historique (doit être vide)
-        System.out.println("Historique des sessions suivies par " + apprenant.getPrenom() + " : " + apprenant.getSessionsSuivies().size());
-
-
-        // create counter model + controller and bind to the view
-        fr.ubordeaux.m1.model.Counter counter = new fr.ubordeaux.m1.model.Counter(0);
-        new fr.ubordeaux.m1.controller.CounterController(counter, accueilView);
-
-        Scene scene = new Scene(accueilView.getRoot(), 600, 400);
-            primaryStage.setTitle("Application de gestion d’un centre de formation");
-            primaryStage.setScene(scene);
-            primaryStage.show();
+        primaryStage.show();
     }
 
     public static void main(String[] args) {
