@@ -45,15 +45,21 @@ public class Formateur {
     }
 
     public List<String> getSpecialites() {
-        return specialites;
+        return new ArrayList<>(specialites);
+    }
+
+    public void ajouterSpecialite(String specialite) {
+        if (!specialites.contains(specialite)) {
+            specialites.add(specialite);
+        }
+    }
+
+    public void retirerSpecialite(String specialite) {
+        specialites.remove(specialite);
     }
 
     @Override
     public String toString() {
-        return "Formateur{" +
-                "nom='" + nom + '\'' +
-                ", prenom='" + prenom + '\'' +
-                ", specialites=" + specialites +
-                '}';
+        return prenom + " " + nom;
     }
 }

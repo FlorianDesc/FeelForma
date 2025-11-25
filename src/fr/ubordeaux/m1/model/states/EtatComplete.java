@@ -12,6 +12,8 @@ public class EtatComplete implements SessionState {
 
     @Override
     public void inscrire(Apprenant apprenant) {
+        // Ajouter l'apprenant à la liste d'attente
+        session.getInscrits().add(apprenant);
         session.notifyInscriptionWaitlisted(apprenant);
     }
 

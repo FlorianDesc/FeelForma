@@ -1,39 +1,60 @@
 package fr.ubordeaux.m1.controller;
 
-import fr.ubordeaux.m1.model.entities.Apprenant;
+import java.util.ArrayList;
+import java.util.List;
+
+import fr.ubordeaux.m1.model.entities.Formation;
 import fr.ubordeaux.m1.model.entities.Session;
-import fr.ubordeaux.m1.model.listeners.SessionListener;
+import fr.ubordeaux.m1.view.SessionView;
 
-public class SessionController implements SessionListener {
-    @Override
-    public void sessionUpdated(Session session) {
-        System.out.println("État mis à jour : " + session.getEtat().getLabel());
+public class SessionController {
+
+    private final Formation formation;
+    private final List<Session> model;
+    private SessionView view;
+
+    public SessionController(Formation formation, SessionView view) {
+        this.formation = formation;
+        this.model = new ArrayList<>(formation.getSessions());
+        this.view = view;
+        // Initialiser la vue avec les sessions existantes
+        if (view != null) {
+            view.updateTable(model);
+        }
     }
 
-    @Override
-    public void inscriptionSessionConfirmed(Session session, Apprenant apprenant) {
-        System.out.println("Inscription validée : " + apprenant.getNom());
+    public void setView(SessionView view) {
+        this.view = view;
     }
 
-    @Override
-    public void inscriptionSessionWaitlisted(Session session, Apprenant apprenant) {
-        System.out.println("Liste d'attente : " + apprenant.getNom());
+    public Formation getFormation() {
+        return formation;
     }
 
-    @Override
-    public void inscriptionSessionCancelled(Session session, Apprenant apprenant) {
-        System.out.println("Inscription refusée : " + apprenant.getNom());
+    // === AJOUT ===
+    public void ajouterSession(Session session) {
+        model.add(session);
+        formation.addSession(session);
+        view.updateTable(model);
     }
 
-    @Override
-    public void sessionFull(Session session) {
-        System.out.println("Session complète !");
+    // === SUPPRESSION ===
+    public void supprimerSession(Session session) {
+        model.remove(session);
+        formation.removeSession(session);
+        view.updateTable(model);
     }
 
-    @Override
-    public void sessionReopened(Session session) {
-        System.out.println("La session est réouverte.");
+    // === MODIFICATION ===
+    public void modifierSession(Session ancienne, Session nouvelle) {
+        int index = model.indexOf(ancienne);
+        if (index >= 0) {
+            model.set(index, nouvelle);
+            view.updateTable(model);
+        }
     }
 
-
+    public List<Session> getSessions() {
+        return new ArrayList<>(model);
+    }
 }

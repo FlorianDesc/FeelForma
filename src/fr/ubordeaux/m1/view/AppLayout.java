@@ -11,6 +11,7 @@ public class AppLayout {
     private final BorderPane main;
     private final SidebarView sidebar;
     private final Sheet sheet;
+    private final Sheet inscriptionSheet;
     private final StackPane container; // ← zone où on affiche les pages
 
     public AppLayout() {
@@ -18,6 +19,7 @@ public class AppLayout {
         main = new BorderPane();
         sidebar = new SidebarView();
         sheet = new Sheet();
+        inscriptionSheet = new Sheet();
         container = new StackPane(); // ← ajouter ça
         root.getStyleClass().add("app-root");
 
@@ -30,7 +32,7 @@ public class AppLayout {
         main.setCenter(container);
 
         // On empile BorderPane + Sheet (pour les popups)
-        root.getChildren().addAll(main, sheet);
+        root.getChildren().addAll(main, sheet, inscriptionSheet);
     }
 
     public Node getRoot() {
@@ -47,5 +49,9 @@ public class AppLayout {
 
     public Sheet getSheet() {
         return sheet;
+    }
+
+    public Sheet getInscriptionSheet() {
+        return inscriptionSheet;
     }
 }

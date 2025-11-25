@@ -4,6 +4,7 @@ import java.util.List;
 
 import fr.ubordeaux.m1.controller.FormationController;
 import fr.ubordeaux.m1.model.entities.Formation;
+import fr.ubordeaux.m1.model.services.DataService;
 import fr.ubordeaux.m1.view.component.CustomButton;
 import fr.ubordeaux.m1.view.component.CustomButton.Size;
 import fr.ubordeaux.m1.view.component.CustomButton.Variant;
@@ -30,6 +31,7 @@ public class FormationViewImpl implements FormationView {
 
     private final FormationController controller;
     private final Sheet sheet;
+    private final fr.ubordeaux.m1.controller.NavigationController navigationController;
 
     private final TextField fieldTitre;
     private final TextField fieldDuree;
@@ -37,9 +39,10 @@ public class FormationViewImpl implements FormationView {
 
     private Formation formationEnEdition = null;
 
-    public FormationViewImpl(Sheet sheetGlobal) {
+    public FormationViewImpl(Sheet sheetGlobal, fr.ubordeaux.m1.controller.NavigationController navigationController) {
 
         this.sheet = sheetGlobal;
+        this.navigationController = navigationController;
 
         root = new StackPane();
         contentPane = new VBox(20);
@@ -47,7 +50,8 @@ public class FormationViewImpl implements FormationView {
 
         tableView = new TableView<>();
 
-        controller = new FormationController(this);
+        controller = new FormationController();
+        controller.setView(this);
 
         fieldTitre = new TextField();
         fieldDuree = new TextField();
@@ -123,7 +127,27 @@ public class FormationViewImpl implements FormationView {
             }
         });
 
-        tableView.getColumns().addAll(colTitre, colDuree, colCategorie, colModifier, colSupprimer);
+        // Bouton Voir Sessions
+        TableColumn<Formation, Void> colVoirSessions = new TableColumn<>("Voir sessions");
+        colVoirSessions.setCellFactory(column -> new TableCell<>() {
+            private final CustomButton btn = new CustomButton("Voir sessions", Variant.PRIMARY, Size.SM);
+
+            {
+                btn.setOnAction(e -> {
+                    Formation f = getTableView().getItems().get(getIndex());
+                    navigationController.showSessionPage(f);
+                });
+            }
+
+            @Override
+            protected void updateItem(Void item, boolean empty) {
+                super.updateItem(item, empty);
+                setGraphic(empty ? null : btn);
+                setAlignment(Pos.CENTER);
+            }
+        });
+
+        tableView.getColumns().addAll(colTitre, colDuree, colCategorie, colModifier, colSupprimer, colVoirSessions);
 
         // === HAUTEUR FIXE DES LIGNES ===
         tableView.setFixedCellSize(50); // 👉 hauteur de ligne demandée
@@ -136,6 +160,16 @@ public class FormationViewImpl implements FormationView {
 
         contentPane.getChildren().addAll(btnAjouter, tableView);
         root.getChildren().add(contentPane);
+        
+        // Charger les formations par défaut depuis DataService
+        chargerFormationsParDefaut();
+    }
+    
+    private void chargerFormationsParDefaut() {
+        DataService dataService = DataService.getInstance();
+        for (Formation formation : dataService.getFormations()) {
+            controller.ajouterFormation(formation);
+        }
     }
 
     private <S, T> void centrerCellules(TableColumn<S, T> col) {
@@ -184,7 +218,7 @@ public class FormationViewImpl implements FormationView {
                 if (formationEnEdition == null) {
                     controller.ajouterFormation(nouvelle);
                 } else {
-                    controller.modifierFormation(formationEnEdition, nouvelle);
+                    controller.modifierFormation(formationEnEdition, nouvelle.getTitre(), nouvelle.getDuree(), nouvelle.getCategorie());
                 }
 
                 sheet.close();
@@ -222,6 +256,14 @@ public class FormationViewImpl implements FormationView {
     public void updateTable(List<Formation> formations) {
         tableView.setItems(FXCollections.observableArrayList(formations));
         tableView.refresh();
+    }
+
+    public void ajouterFormationAuTableau(Formation formation) {
+        tableView.getItems().add(formation);
+    }
+
+    public void supprimerFormationDuTableau(Formation formation) {
+        tableView.getItems().remove(formation);
     }
 
     @Override

@@ -34,14 +34,14 @@ public class SidebarView {
         btnFormation.setMaxWidth(Double.MAX_VALUE);  // FULL WIDTH
         btnFormation.setGraphic(createButtonContent(Icons.book(20), "Formations"));
 
-        // === Bouton Sessions ===
+        // === Bouton Sessions (supprimé de la sidebar) ===
         btnSession = new CustomButton("", Variant.TERTIARY, Size.MD);
         btnSession.setMaxWidth(Double.MAX_VALUE);   // FULL WIDTH
         btnSession.setGraphic(createButtonContent(Icons.user(20), "Sessions"));
 
         setActive("formation");
 
-        root.getChildren().addAll(title, btnFormation, btnSession);
+        root.getChildren().addAll(title, btnFormation);
     }
 
     public Node getNode() {

@@ -12,14 +12,18 @@ public class EtatOuverte implements SessionState {
 
     @Override
     public void inscrire(Apprenant apprenant) {
-        if (session.getInscrits().size() < session.getNbPlacesMax()) {
-            session.getInscrits().add(apprenant);
+        session.getInscrits().add(apprenant);
+        
+        if (session.getInscrits().size() <= session.getNbPlacesMax()) {
             session.notifyInscriptionConfirmed(apprenant);
 
             if (session.getInscrits().size() == session.getNbPlacesMax()) {
                 session.changeState(new EtatComplete(session));
                 session.notifySessionFull();
             }
+        } else {
+            // Si on dépasse le nombre de places, on met en attente
+            session.notifyInscriptionWaitlisted(apprenant);
         }
     }
 
