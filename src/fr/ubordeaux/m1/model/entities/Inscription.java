@@ -6,49 +6,32 @@ import java.time.LocalDateTime;
  * Classe représentant une inscription à une session de formation
  */
 public class Inscription {
-    private Session session;
-    private Apprenant apprenant;
-    private LocalDateTime dateInscription;
-    private EtatInscription etat;
+    private final Session session;
+    private final Apprenant apprenant;
+    private final LocalDateTime dateInscription;
+    private boolean estConfirmee;
 
-    /**
-     * Énumération des différents états possibles d'une inscription
-     */
-    public enum EtatInscription {
-        CONFIRMEE,
-        EN_ATTENTE,
-        ANNULEE
-    }
-
-    /**
-     * Constructeur de la classe Inscription
-     * @param session la session concernée
-     * @param apprenant l'apprenant qui s'inscrit
-     */
     public Inscription(Session session, Apprenant apprenant) {
         this.session = session;
         this.apprenant = apprenant;
         this.dateInscription = LocalDateTime.now();
-        this.etat = EtatInscription.EN_ATTENTE;
+        this.estConfirmee = false;
     }
 
-    // --- Méthodes appelées par SessionState ---
     public void confirmer() {
-        etat = EtatInscription.CONFIRMEE;
+        estConfirmee = true;
         session.notifyInscriptionConfirmed(apprenant);
+        apprenant.ajouterSessionSuivie(session);
     }
 
     public void mettreEnAttente() {
-        etat = EtatInscription.EN_ATTENTE;
         session.notifyInscriptionWaitlisted(apprenant);
     }
-
     public void annuler() {
-        etat = EtatInscription.ANNULEE;
         session.notifyInscriptionCancelled(apprenant);
+        apprenant.retirerSessionSuivie(session);
     }
 
-    // Getters et Setters
     public Session getSession() {
         return session;
     }
@@ -61,8 +44,8 @@ public class Inscription {
         return dateInscription;
     }
 
-    public EtatInscription getEtat() {
-        return etat;
+    public boolean estConfirmee() {
+        return estConfirmee;
     }
 
     @Override
@@ -70,7 +53,6 @@ public class Inscription {
         return "Inscription{" +
                 "apprenant=" + apprenant.getNom() +
                 ", date=" + dateInscription +
-                ", etat=" + etat +
-                '}';
+                ", estConfirmee=" + estConfirmee +'}';
     }
 }

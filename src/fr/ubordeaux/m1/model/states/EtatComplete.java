@@ -1,6 +1,6 @@
 package fr.ubordeaux.m1.model.states;
 
-import fr.ubordeaux.m1.model.entities.Apprenant;
+import fr.ubordeaux.m1.model.entities.Inscription;
 import fr.ubordeaux.m1.model.entities.Session;
 
 public class EtatComplete implements SessionState {
@@ -11,10 +11,8 @@ public class EtatComplete implements SessionState {
     }
 
     @Override
-    public void inscrire(Apprenant apprenant) {
-        // Ajouter l'apprenant à la liste d'attente
-        session.getInscrits().add(apprenant);
-        session.notifyInscriptionWaitlisted(apprenant);
+    public void inscrire(Inscription inscription) {
+        session.mettreEnListeAttente(inscription);
     }
 
     @Override

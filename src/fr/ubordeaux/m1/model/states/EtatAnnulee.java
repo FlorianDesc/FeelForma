@@ -1,6 +1,6 @@
 package fr.ubordeaux.m1.model.states;
 
-import fr.ubordeaux.m1.model.entities.Apprenant;
+import fr.ubordeaux.m1.model.entities.Inscription;
 import fr.ubordeaux.m1.model.entities.Session;
 
 public class EtatAnnulee implements SessionState {
@@ -11,8 +11,8 @@ public class EtatAnnulee implements SessionState {
     }
 
     @Override
-    public void inscrire(Apprenant apprenant) {
-        session.notifyInscriptionCancelled(apprenant);
+    public void inscrire(Inscription inscription) {
+        System.out.println("Impossible : session annulée");
     }
 
     @Override
