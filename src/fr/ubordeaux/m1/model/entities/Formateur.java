@@ -35,12 +35,6 @@ public class Formateur {
         listeners.remove(listener);
     }
 
-    private void notifyListeners() {
-        for (FormateurListener listener : listeners) {
-            listener.formateurUpdated(this);
-        }
-    }
-
     // Getters et Setters
     public String getNom() {
         return nom;

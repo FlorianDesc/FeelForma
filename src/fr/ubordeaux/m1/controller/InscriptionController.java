@@ -1,27 +1,23 @@
 package fr.ubordeaux.m1.controller;
 
+import fr.ubordeaux.m1.model.entities.Apprenant;
 import fr.ubordeaux.m1.model.entities.Inscription;
-import fr.ubordeaux.m1.model.listeners.InscriptionListener;
+import fr.ubordeaux.m1.model.entities.Session;
 
-public class InscriptionController implements InscriptionListener {
-    public void inscriptionCreated(Inscription source){
-
+public class InscriptionController {
+    /**
+     * Tente d'inscrire un apprenant dans une session.
+     * Délègue à SessionState.
+     */
+    public void inscrire(Session session, Apprenant apprenant) {
+        session.inscrire(apprenant);
     }
 
-    public void inscriptionStateChanged(Inscription source, Inscription.EtatInscription oldState, Inscription.EtatInscription newState){
-
-    }
-
-    public void inscriptionConfirmed(Inscription source){
-
-    }
-
-    public void inscriptionWaitlisted(Inscription source){
-
-    }
-
-    public void inscriptionCancelled(Inscription source){
-
+    /**
+     * Annule une inscription confirmée ou en attente.
+     */
+    public void annulerInscription(Inscription inscription) {
+        inscription.annuler();
     }
 
 }

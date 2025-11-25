@@ -1,11 +1,6 @@
 package fr.ubordeaux.m1.model.entities;
 
 import java.time.LocalDateTime;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Queue;
-
-import fr.ubordeaux.m1.model.listeners.InscriptionListener;
 
 /**
  * Classe représentant une inscription à une session de formation
@@ -15,9 +10,6 @@ public class Inscription {
     private Apprenant apprenant;
     private LocalDateTime dateInscription;
     private EtatInscription etat;
-    private static Queue<Inscription> listeAttente = new LinkedList<>();
-
-    private final List<InscriptionListener> listeners = new LinkedList<>();
 
     /**
      * Énumération des différents états possibles d'une inscription
@@ -37,19 +29,23 @@ public class Inscription {
         this.session = session;
         this.apprenant = apprenant;
         this.dateInscription = LocalDateTime.now();
+        this.etat = EtatInscription.EN_ATTENTE;
     }
 
-    // --- Gestion des listeners ---
-    public void addListener(InscriptionListener listener) {
-        listeners.add(listener);
+    // --- Méthodes appelées par SessionState ---
+    public void confirmer() {
+        etat = EtatInscription.CONFIRMEE;
+        session.notifyInscriptionConfirmed(apprenant);
     }
-    public void removeListener(InscriptionListener listener) {
-        listeners.remove(listener);
+
+    public void mettreEnAttente() {
+        etat = EtatInscription.EN_ATTENTE;
+        session.notifyInscriptionWaitlisted(apprenant);
     }
-    private void notifyListeners() {
-        for (InscriptionListener listener : listeners) {
-            listener.inscriptionConfirmed(this);
-        }
+
+    public void annuler() {
+        etat = EtatInscription.ANNULEE;
+        session.notifyInscriptionCancelled(apprenant);
     }
 
     // Getters et Setters
@@ -67,5 +63,14 @@ public class Inscription {
 
     public EtatInscription getEtat() {
         return etat;
+    }
+
+    @Override
+    public String toString() {
+        return "Inscription{" +
+                "apprenant=" + apprenant.getNom() +
+                ", date=" + dateInscription +
+                ", etat=" + etat +
+                '}';
     }
 }

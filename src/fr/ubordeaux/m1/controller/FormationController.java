@@ -3,9 +3,9 @@ package fr.ubordeaux.m1.controller;
 import java.util.ArrayList;
 import java.util.List;
 
-import fr.ubordeaux.m1.model.Formation;
-import fr.ubordeaux.m1.model.FormationListener;
-import fr.ubordeaux.m1.model.Session;
+import fr.ubordeaux.m1.model.entities.Formation;
+import fr.ubordeaux.m1.model.listeners.FormationListener;
+import fr.ubordeaux.m1.model.entities.Session;
 
 public class FormationController implements FormationListener {
     private final List<Formation> formations = new ArrayList<>();
