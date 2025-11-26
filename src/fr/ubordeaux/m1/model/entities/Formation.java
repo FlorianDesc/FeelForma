@@ -16,12 +16,41 @@ public class Formation {
 
     private final List<FormationListener> listeners = new ArrayList<>();
 
-    /**
-     * Constructeur de la classe Formation
-     * @param titre le titre de la formation
-     * @param duree la durée de la formation en heures
-     * @param categorie la catégorie de la formation (informatique, management, langues, etc.)
-     */
+    // --- Constructeur privé utilisé par le Builder ---
+    private Formation(Builder builder) {
+        this.titre = builder.titre;
+        this.duree = builder.duree;
+        this.categorie = builder.categorie;
+        this.sessions = new ArrayList<>(builder.sessions);
+    }
+
+    // --- Builder ---
+    public static class Builder {
+        private String titre;
+        private int duree;
+        private String categorie;
+        private List<Session> sessions = new ArrayList<>();
+
+        public Builder titre(String titre) {
+            this.titre = titre;
+            return this;
+        }
+
+        public Builder duree(int duree) {
+            this.duree = duree;
+            return this;
+        }
+
+        public Builder categorie(String categorie) {
+            this.categorie = categorie;
+            return this;
+        }
+
+        public Formation build() {
+            return new Formation(this);
+        }
+    }
+
     public Formation(String titre, int duree, String categorie) {
         this.titre = titre;
         this.duree = duree;

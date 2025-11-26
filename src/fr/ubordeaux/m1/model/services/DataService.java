@@ -87,8 +87,16 @@ public class DataService {
         formateurs.add(f8);
         
         // Création de formations par défaut
-        Formation formationJava = new Formation("Java Avancé", 40, "Développement");
-        Formation formationPython = new Formation("Python pour Data Science", 35, "Data Science");
+        Formation formationJava = new Formation.Builder()
+            .titre("Java Avancé")
+            .duree(40)
+            .categorie("Développement")
+            .build();
+        Formation formationPython = new Formation.Builder()
+            .titre("Python pour Data Science")
+            .duree(35)
+            .categorie("Data Science")
+            .build();
         
         formations.add(formationJava);
         formations.add(formationPython);
