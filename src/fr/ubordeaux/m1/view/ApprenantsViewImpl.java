@@ -5,7 +5,9 @@ import java.util.List;
 
 import fr.ubordeaux.m1.controller.ApprenantsController;
 import fr.ubordeaux.m1.model.entities.Apprenant;
+import fr.ubordeaux.m1.model.entities.Formateur;
 import fr.ubordeaux.m1.model.entities.Notification;
+import fr.ubordeaux.m1.model.entities.Session;
 import fr.ubordeaux.m1.model.services.DataService;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -19,19 +21,43 @@ import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 
-/**
- * Vue permettant de sélectionner un apprenant et voir ses notifications
- */
 public class ApprenantsViewImpl implements ApprenantsView {
+
+    private static class PersonneWrapper {
+        private final Object personne;
+        private final String type;
+        
+        public PersonneWrapper(Object personne, String type) {
+            this.personne = personne;
+            this.type = type;
+        }
+        
+        public Object getPersonne() { return personne; }
+        public String getType() { return type; }
+        
+        @Override
+        public String toString() {
+            if (personne instanceof Apprenant) {
+                Apprenant a = (Apprenant) personne;
+                return a.getPrenom() + " " + a.getNom() + " (Apprenant)";
+            } else if (personne instanceof Formateur) {
+                Formateur f = (Formateur) personne;
+                return f.getPrenom() + " " + f.getNom() + " (Formateur)";
+            }
+            return "";
+        }
+    }
 
     private final StackPane root;
     private final VBox contentPane;
-    private final ComboBox<Apprenant> comboApprenants;
+    private final ComboBox<PersonneWrapper> comboPersonnes;
     private final VBox notificationsContainer;
+    private final VBox historiqueContainer;
     private final Label labelAucuneNotification;
+    private final Label labelAucuneFormation;
     
     private final ApprenantsController controller;
-    private Apprenant apprenantSelectionne;
+    private Object personneSelectionnee;
 
     public ApprenantsViewImpl() {
         this.controller = new ApprenantsController(this);
@@ -41,29 +67,35 @@ public class ApprenantsViewImpl implements ApprenantsView {
         contentPane.setPadding(new Insets(20));
         contentPane.setAlignment(Pos.TOP_LEFT);
 
-        // En-tête
-        Label titre = new Label("Notifications des Apprenants");
+        Label titre = new Label("Notifications / Formations");
         titre.setStyle("-fx-font-size: 24px; -fx-font-weight: bold;");
 
-        // Sélecteur d'apprenant
         HBox selecteurBox = new HBox(15);
         selecteurBox.setAlignment(Pos.CENTER_LEFT);
         
-        Label labelApprenant = new Label("Sélectionner un apprenant :");
-        labelApprenant.setStyle("-fx-font-size: 14px; -fx-font-weight: bold;");
+        Label labelPersonne = new Label("Sélectionner une personne :");
+        labelPersonne.setStyle("-fx-font-size: 14px; -fx-font-weight: bold;");
         
-        comboApprenants = new ComboBox<>();
-        comboApprenants.setPrefWidth(300);
-        comboApprenants.setPromptText("Choisir un apprenant...");
-        comboApprenants.setOnAction(e -> {
-            apprenantSelectionne = comboApprenants.getValue();
-            afficherNotifications();
+        comboPersonnes = new ComboBox<>();
+        comboPersonnes.setPrefWidth(350);
+        comboPersonnes.setPromptText("Choisir une personne...");
+        comboPersonnes.setOnAction(e -> {
+            PersonneWrapper wrapper = comboPersonnes.getValue();
+            if (wrapper != null) {
+                personneSelectionnee = wrapper.getPersonne();
+                afficherNotifications();
+                afficherHistorique();
+            }
         });
         
-        selecteurBox.getChildren().addAll(labelApprenant, comboApprenants);
+        selecteurBox.getChildren().addAll(labelPersonne, comboPersonnes);
 
-        // Zone de notifications avec titre et séparateur
+        HBox contenuPrincipal = new HBox(20);
+        HBox.setHgrow(contenuPrincipal, Priority.ALWAYS);
+        
         VBox notificationsSection = new VBox(15);
+        HBox.setHgrow(notificationsSection, Priority.ALWAYS);
+        notificationsSection.setPrefWidth(400);
         
         HBox headerNotifications = new HBox(10);
         headerNotifications.setAlignment(Pos.CENTER_LEFT);
@@ -74,7 +106,6 @@ public class ApprenantsViewImpl implements ApprenantsView {
         
         headerNotifications.getChildren().add(labelTitreNotifs);
 
-        // Conteneur scrollable pour les notifications
         notificationsContainer = new VBox(10);
         notificationsContainer.setPadding(new Insets(10));
         
@@ -89,29 +120,75 @@ public class ApprenantsViewImpl implements ApprenantsView {
         labelAucuneNotification.setVisible(false);
 
         notificationsSection.getChildren().addAll(headerNotifications, scrollPane, labelAucuneNotification);
+        
+        VBox historiqueSection = new VBox(15);
+        HBox.setHgrow(historiqueSection, Priority.ALWAYS);
+        historiqueSection.setPrefWidth(400);
+        
+        HBox headerHistorique = new HBox(10);
+        headerHistorique.setAlignment(Pos.CENTER_LEFT);
+        headerHistorique.setPadding(new Insets(10, 0, 10, 0));
+        
+        Label labelTitreHistorique = new Label("Historique des formations");
+        labelTitreHistorique.setStyle("-fx-font-size: 18px; -fx-font-weight: bold;");
+        
+        headerHistorique.getChildren().add(labelTitreHistorique);
+        
+        historiqueContainer = new VBox(10);
+        historiqueContainer.setPadding(new Insets(10));
+        
+        ScrollPane scrollPaneHistorique = new ScrollPane(historiqueContainer);
+        scrollPaneHistorique.setFitToWidth(true);
+        scrollPaneHistorique.setStyle("-fx-background: transparent; -fx-background-color: transparent;");
+        scrollPaneHistorique.setPrefHeight(500);
+        VBox.setVgrow(scrollPaneHistorique, Priority.ALWAYS);
+        
+        labelAucuneFormation = new Label("Aucune formation suivie");
+        labelAucuneFormation.setStyle("-fx-font-size: 14px; -fx-text-fill: #95a5a6; -fx-padding: 20px;");
+        labelAucuneFormation.setVisible(false);
+        
+        historiqueSection.getChildren().addAll(headerHistorique, scrollPaneHistorique, labelAucuneFormation);
+        
+        contenuPrincipal.getChildren().addAll(notificationsSection, historiqueSection);
 
-        // Assemblage
-        contentPane.getChildren().addAll(titre, selecteurBox, notificationsSection);
+        contentPane.getChildren().addAll(titre, selecteurBox, contenuPrincipal);
         root.getChildren().add(contentPane);
 
-        chargerApprenants();
+        chargerPersonnes();
     }
 
-    private void chargerApprenants() {
+    private void chargerPersonnes() {
         DataService dataService = DataService.getInstance();
-        List<Apprenant> apprenants = dataService.getApprenants();
-        comboApprenants.getItems().setAll(apprenants);
+        List<PersonneWrapper> personnes = new java.util.ArrayList<>();
+        
+        for (Apprenant a : dataService.getApprenants()) {
+            personnes.add(new PersonneWrapper(a, "Apprenant"));
+        }
+        
+        for (Formateur f : dataService.getFormateurs()) {
+            personnes.add(new PersonneWrapper(f, "Formateur"));
+        }
+        
+        comboPersonnes.getItems().setAll(personnes);
     }
 
     private void afficherNotifications() {
         notificationsContainer.getChildren().clear();
         
-        if (apprenantSelectionne == null) {
+        if (personneSelectionnee == null) {
             labelAucuneNotification.setVisible(true);
             return;
         }
 
-        List<Notification> notifications = apprenantSelectionne.getNotifications();
+        List<Notification> notifications;
+        if (personneSelectionnee instanceof Apprenant) {
+            notifications = ((Apprenant) personneSelectionnee).getNotifications();
+        } else if (personneSelectionnee instanceof Formateur) {
+            notifications = ((Formateur) personneSelectionnee).getNotifications();
+        } else {
+            labelAucuneNotification.setVisible(true);
+            return;
+        }
         
         if (notifications.isEmpty()) {
             labelAucuneNotification.setVisible(true);
@@ -126,6 +203,62 @@ public class ApprenantsViewImpl implements ApprenantsView {
             VBox notifBox = creerCarteNotification(notif);
             notificationsContainer.getChildren().add(notifBox);
         }
+    }
+
+    private void afficherHistorique() {
+        historiqueContainer.getChildren().clear();
+        
+        if (personneSelectionnee == null || !(personneSelectionnee instanceof Apprenant)) {
+            labelAucuneFormation.setVisible(true);
+            return;
+        }
+
+        List<Session> sessions = ((Apprenant) personneSelectionnee).getSessionsSuivies();
+        
+        if (sessions.isEmpty()) {
+            labelAucuneFormation.setVisible(true);
+            return;
+        }
+
+        labelAucuneFormation.setVisible(false);
+
+        // Afficher les sessions dans l'ordre inverse (plus récentes en premier)
+        for (int i = sessions.size() - 1; i >= 0; i--) {
+            Session session = sessions.get(i);
+            VBox sessionBox = creerCarteSession(session);
+            historiqueContainer.getChildren().add(sessionBox);
+        }
+    }
+    
+    private VBox creerCarteSession(Session session) {
+        VBox carte = new VBox(8);
+        carte.setPadding(new Insets(15));
+        carte.setStyle(
+            "-fx-background-color: #ffffff;" +
+            "-fx-border-color: #3498db;" +
+            "-fx-border-width: 0 0 0 4;" +
+            "-fx-background-radius: 5;" +
+            "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 5, 0, 0, 2);"
+        );
+
+        // Titre de la formation
+        Label labelFormation = new Label(session.getFormation().getTitre());
+        labelFormation.setStyle("-fx-font-weight: bold; -fx-font-size: 14px; -fx-text-fill: #2c3e50;");
+
+        // Dates
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+        Label labelDates = new Label("Du " + session.getDateDebut().format(formatter) + 
+                                     " au " + session.getDateFin().format(formatter));
+        labelDates.setStyle("-fx-font-size: 12px; -fx-text-fill: #7f8c8d;");
+        
+        // Formateur
+        Formateur formateur = session.getFormateur();
+        Label labelFormateur = new Label("Fait par : " + formateur.getPrenom() + " " + formateur.getNom());
+        labelFormateur.setStyle("-fx-font-size: 12px; -fx-text-fill: #7f8c8d;");
+
+        carte.getChildren().addAll(labelFormation, labelDates, labelFormateur);
+
+        return carte;
     }
 
     private VBox creerCarteNotification(Notification notification) {
@@ -149,7 +282,7 @@ public class ApprenantsViewImpl implements ApprenantsView {
         Region spacer = new Region();
         HBox.setHgrow(spacer, Priority.ALWAYS);
 
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
         Label labelDate = new Label(notification.getDateNotification().format(formatter));
         labelDate.setStyle("-fx-font-size: 11px; -fx-text-fill: #7f8c8d;");
 
@@ -196,8 +329,14 @@ public class ApprenantsViewImpl implements ApprenantsView {
     }
 
     public void setApprenantSelectionne(Apprenant apprenant) {
-        this.apprenantSelectionne = apprenant;
-        comboApprenants.setValue(apprenant);
+        this.personneSelectionnee = apprenant;
+        for (PersonneWrapper wrapper : comboPersonnes.getItems()) {
+            if (wrapper.getPersonne().equals(apprenant)) {
+                comboPersonnes.setValue(wrapper);
+                break;
+            }
+        }
         afficherNotifications();
+        afficherHistorique();
     }
 }

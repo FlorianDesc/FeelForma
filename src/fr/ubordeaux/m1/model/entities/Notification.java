@@ -2,9 +2,6 @@ package fr.ubordeaux.m1.model.entities;
 
 import java.time.LocalDateTime;
 
-/**
- * Classe représentant une notification pour un apprenant
- */
 public class Notification {
     private final String message;
     private final LocalDateTime dateNotification;

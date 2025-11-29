@@ -4,29 +4,23 @@ import java.util.ArrayList;
 import java.util.List;
 
 import fr.ubordeaux.m1.model.listeners.FormateurListener;
+import fr.ubordeaux.m1.model.listeners.NotificationListener;
 
-/**
- * Classe représentant un formateur
- */
 public class Formateur {
     private String nom;
     private String prenom;
     private List<String> specialites;
+    private List<Notification> notifications = new ArrayList<>();
 
     private final List<FormateurListener> listeners = new ArrayList<>();
+    private final List<NotificationListener> notificationListeners = new ArrayList<>();
 
-    /**
-     * Constructeur de la classe Formateur
-     * @param nom le nom du formateur
-     * @param prenom le prénom du formateur
-     */
     public Formateur(String nom, String prenom) {
         this.nom = nom;
         this.prenom = prenom;
         this.specialites = new ArrayList<>();
     }
 
-    // --- Gestion des listeners ---
     public void addListener(FormateurListener listener) {
         listeners.add(listener);
     }
@@ -35,7 +29,6 @@ public class Formateur {
         listeners.remove(listener);
     }
 
-    // Getters et Setters
     public String getNom() {
         return nom;
     }
@@ -56,6 +49,25 @@ public class Formateur {
 
     public void retirerSpecialite(String specialite) {
         specialites.remove(specialite);
+    }
+
+    public void ajouterNotification(Notification notification) {
+        notifications.add(notification);
+        for (NotificationListener listener : notificationListeners) {
+            listener.notificationAjoutee(null, notification);
+        }
+    }
+
+    public List<Notification> getNotifications() {
+        return new ArrayList<>(notifications);
+    }
+
+    public void addNotificationListener(NotificationListener listener) {
+        notificationListeners.add(listener);
+    }
+
+    public void removeNotificationListener(NotificationListener listener) {
+        notificationListeners.remove(listener);
     }
 
     @Override

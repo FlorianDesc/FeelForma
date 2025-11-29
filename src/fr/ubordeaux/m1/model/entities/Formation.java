@@ -5,9 +5,6 @@ import java.util.List;
 
 import fr.ubordeaux.m1.model.listeners.FormationListener;
 
-/**
- * Classe représentant une formation
- */
 public class Formation {
     private String titre;
     private int duree; // durée en heures

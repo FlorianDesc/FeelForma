@@ -57,7 +57,6 @@ public class SessionViewImpl implements SessionView {
     
     private final ComboBox<Apprenant> fieldApprenant;
     
-    // Labels d'erreur pour le formulaire
     private final Label errorDateDebut = new Label();
     private final Label errorDateFin = new Label();
     private final Label errorFormateur = new Label();
@@ -70,7 +69,6 @@ public class SessionViewImpl implements SessionView {
     
     private final DataService dataService;
     
-    // Références pour le formulaire d'inscription
     private Label labelPlacesInscription;
     private TableView<Apprenant> tableInscritsInscription;
 
@@ -86,7 +84,6 @@ public class SessionViewImpl implements SessionView {
         contentPane = new VBox(20);
         contentPane.setPadding(new Insets(20));
 
-        // === TITRE DE LA PAGE ===
         HBox headerBox = new HBox(20);
         headerBox.setAlignment(Pos.CENTER_LEFT);
 
@@ -106,6 +103,38 @@ public class SessionViewImpl implements SessionView {
         fieldDateFin = new DatePicker();
         fieldFormateur = new ComboBox<>();
         fieldFormateur.getItems().setAll(dataService.getFormateurs());
+        fieldFormateur.setCellFactory(param -> new javafx.scene.control.ListCell<Formateur>() {
+            @Override
+            protected void updateItem(Formateur formateur, boolean empty) {
+                super.updateItem(formateur, empty);
+                if (empty || formateur == null) {
+                    setText(null);
+                } else {
+                    String texte = formateur.getPrenom() + " " + formateur.getNom();
+                    List<String> specialites = formateur.getSpecialites();
+                    if (!specialites.isEmpty()) {
+                        texte += " (" + String.join(", ", specialites) + ")";
+                    }
+                    setText(texte);
+                }
+            }
+        });
+        fieldFormateur.setButtonCell(new javafx.scene.control.ListCell<Formateur>() {
+            @Override
+            protected void updateItem(Formateur formateur, boolean empty) {
+                super.updateItem(formateur, empty);
+                if (empty || formateur == null) {
+                    setText(null);
+                } else {
+                    String texte = formateur.getPrenom() + " " + formateur.getNom();
+                    List<String> specialites = formateur.getSpecialites();
+                    if (!specialites.isEmpty()) {
+                        texte += " (" + String.join(", ", specialites) + ")";
+                    }
+                    setText(texte);
+                }
+            }
+        });
         fieldPlacesMax = new TextField();
         fieldEtat = new ComboBox<>();
         fieldEtat.getItems().setAll("Ouverte", "Complète", "Terminée", "Annulée");
@@ -123,9 +152,6 @@ public class SessionViewImpl implements SessionView {
             sheet.open();
         });
 
-        // === COLONNES ===
-        
-        // Numéro de session (index + 1)
         TableColumn<Session, Void> colNum = new TableColumn<>("N°");
         colNum.setCellFactory(column -> new TableCell<>() {
             @Override
@@ -141,7 +167,6 @@ public class SessionViewImpl implements SessionView {
         });
         colNum.setPrefWidth(50);
 
-        // Date de début
         TableColumn<Session, LocalDate> colDateDebut = new TableColumn<>("Date début");
         colDateDebut.setCellValueFactory(data -> new javafx.beans.property.SimpleObjectProperty<>(data.getValue().getDateDebut()));
         colDateDebut.setCellFactory(column -> new TableCell<>() {
@@ -173,25 +198,27 @@ public class SessionViewImpl implements SessionView {
             }
         });
 
-        // Formateur
         TableColumn<Session, String> colFormateur = new TableColumn<>("Formateur");
         colFormateur.setCellValueFactory(data -> {
             Formateur f = data.getValue().getFormateur();
-            return new javafx.beans.property.SimpleStringProperty(f.getPrenom() + " " + f.getNom());
+            String nom = f.getPrenom() + " " + f.getNom();
+            List<String> specialites = f.getSpecialites();
+            if (!specialites.isEmpty()) {
+                nom += " (" + String.join(", ", specialites) + ")";
+            }
+            return new javafx.beans.property.SimpleStringProperty(nom);
         });
         centrerCellules(colFormateur);
+        colFormateur.setPrefWidth(250);
 
-        // Places max
         TableColumn<Session, Integer> colPlacesMax = new TableColumn<>("Places max");
         colPlacesMax.setCellValueFactory(data -> new javafx.beans.property.SimpleObjectProperty<>(data.getValue().getNbPlacesMax()));
         centrerCellules(colPlacesMax);
 
-        // État
         TableColumn<Session, String> colEtat = new TableColumn<>("État");
         colEtat.setCellValueFactory(data -> new javafx.beans.property.SimpleStringProperty(data.getValue().getEtat().getLabel()));
         centrerCellules(colEtat);
 
-        // Bouton Inscrire
         TableColumn<Session, Void> colInscription = new TableColumn<>("Inscription");
         colInscription.setCellFactory(column -> new TableCell<>() {
             private final CustomButton btn = new CustomButton("Inscrire", Variant.PRIMARY, Size.SM);
@@ -224,7 +251,6 @@ public class SessionViewImpl implements SessionView {
             }
         });
 
-        // Bouton Modifier
         TableColumn<Session, Void> colModifier = new TableColumn<>("Modifier");
         colModifier.setCellFactory(column -> new TableCell<>() {
             private final CustomButton btn = new CustomButton("Modifier", Variant.SECONDARY, Size.SM);
@@ -252,7 +278,6 @@ public class SessionViewImpl implements SessionView {
             }
         });
 
-        // Bouton Supprimer
         TableColumn<Session, Void> colSupprimer = new TableColumn<>("Supprimer");
         colSupprimer.setCellFactory(column -> new TableCell<>() {
             private final CustomButton btn = new CustomButton("Supprimer", Variant.DESTRUCTIVE, Size.SM);
@@ -275,13 +300,11 @@ public class SessionViewImpl implements SessionView {
         tableView.getColumns().addAll(colNum, colDateDebut, colDateFin, colFormateur, 
                                        colPlacesMax, colEtat, colInscription, colModifier, colSupprimer);
 
-        // === HAUTEUR FIXE DES LIGNES ===
         tableView.setFixedCellSize(50);
         tableView.prefHeightProperty().bind(
                 tableView.fixedCellSizeProperty().multiply(10).add(30)
         );
 
-        // === AUTO-LARGEUR COLONNES ===
         tableView.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
 
         contentPane.getChildren().addAll(headerBox, btnAjouter, tableView);
@@ -309,7 +332,6 @@ public class SessionViewImpl implements SessionView {
         Label titre = new Label("Session");
         titre.setStyle("-fx-font-size: 20px; -fx-font-weight: bold;");
 
-        // Listener pour afficher l'avertissement en temps réel
         fieldEtat.valueProperty().addListener((obs, oldVal, newVal) -> {
             if (sessionEnEdition != null && newVal != null) {
                 try {
@@ -324,9 +346,7 @@ public class SessionViewImpl implements SessionView {
                         infoEtat.setVisible(false);
                         infoEtat.setManaged(false);
                     }
-                } catch (NumberFormatException e) {
-                    // Ignorer si le nombre de places n'est pas valide
-                }
+                } catch (NumberFormatException e) {}
             }
         });
         
@@ -359,9 +379,8 @@ public class SessionViewImpl implements SessionView {
                 );
 
                 if (sessionEnEdition == null) {
-                    // Nouvelle session : ne peut être que "Ouverte" ou "Terminée" ou "Annulée" (pas "Complète" car vide)
                     if (etatSelectionne.equals("Complète")) {
-                        etatSelectionne = "Ouverte"; // Forcer à Ouverte si l'utilisateur a choisi Complète
+                        etatSelectionne = "Ouverte";
                     }
                     SessionState etat = creerEtatDepuisLabel(etatSelectionne, nouvelle);
                     nouvelle.changeState(etat);
@@ -434,7 +453,6 @@ public class SessionViewImpl implements SessionView {
     }
 
     private boolean validerFormulaire() {
-        // Réinitialiser les styles et erreurs
         fieldDateDebut.setStyle("");
         fieldDateFin.setStyle("");
         fieldFormateur.setStyle("");
@@ -454,7 +472,6 @@ public class SessionViewImpl implements SessionView {
         
         boolean valide = true;
         
-        // Validation de la date de début
         if (fieldDateDebut.getValue() == null) {
             fieldDateDebut.setStyle("-fx-border-color: red; -fx-border-width: 2px;");
             errorDateDebut.setText("La date de début est obligatoire");
@@ -463,7 +480,6 @@ public class SessionViewImpl implements SessionView {
             valide = false;
         }
         
-        // Validation de la date de fin
         if (fieldDateFin.getValue() == null) {
             fieldDateFin.setStyle("-fx-border-color: red; -fx-border-width: 2px;");
             errorDateFin.setText("La date de fin est obligatoire");
@@ -472,7 +488,6 @@ public class SessionViewImpl implements SessionView {
             valide = false;
         }
         
-        // Validation de la cohérence des dates
         if (fieldDateDebut.getValue() != null && fieldDateFin.getValue() != null) {
             if (fieldDateDebut.getValue().isAfter(fieldDateFin.getValue())) {
                 fieldDateDebut.setStyle("-fx-border-color: red; -fx-border-width: 2px;");
@@ -484,7 +499,6 @@ public class SessionViewImpl implements SessionView {
             }
         }
         
-        // Validation du formateur
         if (fieldFormateur.getValue() == null) {
             fieldFormateur.setStyle("-fx-border-color: red; -fx-border-width: 2px;");
             errorFormateur.setText("Le formateur est obligatoire");
@@ -493,7 +507,6 @@ public class SessionViewImpl implements SessionView {
             valide = false;
         }
         
-        // Validation du nombre de places (doit être un nombre positif)
         if (fieldPlacesMax.getText().trim().isEmpty()) {
             fieldPlacesMax.setStyle("-fx-border-color: red; -fx-border-width: 2px;");
             errorPlacesMax.setText("Le nombre de places ne peut pas être vide");
@@ -519,7 +532,6 @@ public class SessionViewImpl implements SessionView {
             }
         }
         
-        // Validation de l'état
         if (fieldEtat.getValue() == null) {
             fieldEtat.setStyle("-fx-border-color: red; -fx-border-width: 2px;");
             errorEtat.setText("L'état est obligatoire");
@@ -528,7 +540,6 @@ public class SessionViewImpl implements SessionView {
             valide = false;
         }
         
-        // Vérifier si l'avertissement de session complète est affiché
         if (infoEtat.isVisible()) {
             valide = false;
         }

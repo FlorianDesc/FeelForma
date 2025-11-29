@@ -43,7 +43,7 @@ public class SidebarView {
         // === Bouton Apprenants ===
         btnApprenants = new CustomButton("", Variant.TERTIARY, Size.MD);
         btnApprenants.setMaxWidth(Double.MAX_VALUE);  // FULL WIDTH
-        btnApprenants.setGraphic(createButtonContent(Icons.user(20), "Apprenants"));
+        btnApprenants.setGraphic(createButtonContent(Icons.user(20), "Notifications / Formations"));
 
         setActive("formation");
 

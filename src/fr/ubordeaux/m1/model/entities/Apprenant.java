@@ -6,10 +6,6 @@ import java.util.List;
 import fr.ubordeaux.m1.model.listeners.ApprenantListener;
 import fr.ubordeaux.m1.model.listeners.NotificationListener;
 
-/**
- * Classe représentant un apprenant (modèle).
- * Notifie ses listeners lors de toute mise à jour.
- */
 public class Apprenant {
     private String nom;
     private String prenom;
@@ -22,14 +18,6 @@ public class Apprenant {
     private final List<Notification> notifications = new ArrayList<>();
     private final List<NotificationListener> notificationListeners = new ArrayList<>();
 
-    /**
-     * Constructeur d'un apprenant.
-     * @param nom le nom
-     * @param prenom le prénom
-     * @param adresse l'adresse
-     * @param telephone le téléphone
-     * @param email l'adresse e-mail
-     */
     public Apprenant(String nom, String prenom, String adresse, String telephone, String email) {
         this.nom = nom;
         this.prenom = prenom;
