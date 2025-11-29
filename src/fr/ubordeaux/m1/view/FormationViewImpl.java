@@ -9,7 +9,6 @@ import fr.ubordeaux.m1.view.component.CustomButton;
 import fr.ubordeaux.m1.view.component.CustomButton.Size;
 import fr.ubordeaux.m1.view.component.CustomButton.Variant;
 import fr.ubordeaux.m1.view.component.Sheet;
-import javafx.collections.FXCollections;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
@@ -36,6 +35,11 @@ public class FormationViewImpl implements FormationView {
     private final TextField fieldTitre;
     private final TextField fieldDuree;
     private final TextField fieldCategorie;
+    
+    // Labels d'erreur
+    private final Label errorTitre = new Label();
+    private final Label errorDuree = new Label();
+    private final Label errorCategorie = new Label();
 
     private Formation formationEnEdition = null;
 
@@ -195,9 +199,9 @@ public class FormationViewImpl implements FormationView {
 
         VBox champs = new VBox(16);
         champs.getChildren().addAll(
-            creerChampFormulaire("Titre", fieldTitre),
-            creerChampFormulaire("Durée (heures)", fieldDuree),
-            creerChampFormulaire("Catégorie", fieldCategorie)
+            creerChampFormulaire("Titre", fieldTitre, errorTitre),
+            creerChampFormulaire("Durée (heures)", fieldDuree, errorDuree),
+            creerChampFormulaire("Catégorie", fieldCategorie, errorCategorie)
         );
 
         HBox boutons = new HBox(12);
@@ -231,12 +235,15 @@ public class FormationViewImpl implements FormationView {
         return formulaire;
     }
 
-    private VBox creerChampFormulaire(String label, TextField field) {
-        VBox container = new VBox(8);
+    private VBox creerChampFormulaire(String label, TextField field, Label errorLabel) {
+        VBox container = new VBox(4);
         Label labelControl = new Label(label);
         field.setPrefHeight(36);
         field.setPrefWidth(350);
-        container.getChildren().addAll(labelControl, field);
+        errorLabel.setStyle("-fx-text-fill: red; -fx-font-size: 11px;");
+        errorLabel.setVisible(false);
+        errorLabel.setManaged(false);
+        container.getChildren().addAll(labelControl, field, errorLabel);
         return container;
     }
 
@@ -247,14 +254,70 @@ public class FormationViewImpl implements FormationView {
     }
 
     private boolean validerFormulaire() {
-        return !fieldTitre.getText().isEmpty()
-            && !fieldDuree.getText().isEmpty()
-            && !fieldCategorie.getText().isEmpty();
+        // Réinitialiser les styles et erreurs
+        fieldTitre.setStyle("");
+        fieldDuree.setStyle("");
+        fieldCategorie.setStyle("");
+        
+        errorTitre.setVisible(false);
+        errorTitre.setManaged(false);
+        errorDuree.setVisible(false);
+        errorDuree.setManaged(false);
+        errorCategorie.setVisible(false);
+        errorCategorie.setManaged(false);
+        
+        boolean valide = true;
+        
+        // Validation du titre
+        if (fieldTitre.getText().trim().isEmpty()) {
+            fieldTitre.setStyle("-fx-border-color: red; -fx-border-width: 2px;");
+            errorTitre.setText("Le titre ne peut pas être vide");
+            errorTitre.setVisible(true);
+            errorTitre.setManaged(true);
+            valide = false;
+        }
+        
+        // Validation de la durée (doit être un nombre positif)
+        if (fieldDuree.getText().trim().isEmpty()) {
+            fieldDuree.setStyle("-fx-border-color: red; -fx-border-width: 2px;");
+            errorDuree.setText("La durée ne peut pas être vide");
+            errorDuree.setVisible(true);
+            errorDuree.setManaged(true);
+            valide = false;
+        } else {
+            try {
+                int duree = Integer.parseInt(fieldDuree.getText().trim());
+                if (duree <= 0) {
+                    fieldDuree.setStyle("-fx-border-color: red; -fx-border-width: 2px;");
+                    errorDuree.setText("La durée doit être un nombre positif");
+                    errorDuree.setVisible(true);
+                    errorDuree.setManaged(true);
+                    valide = false;
+                }
+            } catch (NumberFormatException e) {
+                fieldDuree.setStyle("-fx-border-color: red; -fx-border-width: 2px;");
+                errorDuree.setText("La durée doit être un nombre entier");
+                errorDuree.setVisible(true);
+                errorDuree.setManaged(true);
+                valide = false;
+            }
+        }
+        
+        // Validation de la catégorie
+        if (fieldCategorie.getText().trim().isEmpty()) {
+            fieldCategorie.setStyle("-fx-border-color: red; -fx-border-width: 2px;");
+            errorCategorie.setText("La catégorie ne peut pas être vide");
+            errorCategorie.setVisible(true);
+            errorCategorie.setManaged(true);
+            valide = false;
+        }
+        
+        return valide;
     }
 
     @Override
     public void updateTable(List<Formation> formations) {
-        tableView.setItems(FXCollections.observableArrayList(formations));
+        tableView.getItems().setAll(formations);
         tableView.refresh();
     }
 

@@ -7,7 +7,6 @@ import fr.ubordeaux.m1.controller.ApprenantsController;
 import fr.ubordeaux.m1.model.entities.Apprenant;
 import fr.ubordeaux.m1.model.entities.Notification;
 import fr.ubordeaux.m1.model.services.DataService;
-import javafx.collections.FXCollections;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.ComboBox;
@@ -101,7 +100,7 @@ public class ApprenantsViewImpl implements ApprenantsView {
     private void chargerApprenants() {
         DataService dataService = DataService.getInstance();
         List<Apprenant> apprenants = dataService.getApprenants();
-        comboApprenants.setItems(FXCollections.observableArrayList(apprenants));
+        comboApprenants.getItems().setAll(apprenants);
     }
 
     private void afficherNotifications() {

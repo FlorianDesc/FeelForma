@@ -46,12 +46,49 @@ public class SessionController {
     }
 
     // === MODIFICATION ===
-    public void modifierSession(Session ancienne, Session nouvelle) {
+    public void modifierSession(Session ancienne, Session nouvelle, String etatLabel) {
         int index = model.indexOf(ancienne);
         if (index >= 0) {
+            // Conserver les inscriptions et la liste d'attente de l'ancienne session
+            for (fr.ubordeaux.m1.model.entities.Inscription inscription : ancienne.getInscriptions()) {
+                nouvelle.confirmerInscription(inscription);
+            }
+            for (fr.ubordeaux.m1.model.entities.Inscription inscription : ancienne.getListeAttente()) {
+                nouvelle.mettreEnListeAttente(inscription);
+            }
+            
+            // Valider la cohérence de l'état avec le nombre d'inscrits
+            int nbInscrits = nouvelle.getNbInscrits();
+            int nbPlacesMax = nouvelle.getNbPlacesMax();
+            
+            // Si la session est pleine, on ne peut pas la mettre en "Ouverte"
+            if (nbInscrits >= nbPlacesMax && etatLabel.equals("Ouverte")) {
+                // Forcer l'état "Complète" car la session est pleine
+                etatLabel = "Complète";
+            }
+            // Si la session n'est pas pleine, on ne peut pas la mettre en "Complète" manuellement
+            else if (nbInscrits < nbPlacesMax && etatLabel.equals("Complète")) {
+                // Forcer l'état "Ouverte" car il reste des places
+                etatLabel = "Ouverte";
+            }
+            
+            // Appliquer l'état validé APRÈS le transfert des inscriptions
+            fr.ubordeaux.m1.model.states.SessionState etat = creerEtatDepuisLabel(etatLabel, nouvelle);
+            nouvelle.changeState(etat);
+            
             model.set(index, nouvelle);
             view.updateTable(model);
         }
+    }
+    
+    private fr.ubordeaux.m1.model.states.SessionState creerEtatDepuisLabel(String label, Session session) {
+        return switch (label) {
+            case "Ouverte" -> new fr.ubordeaux.m1.model.states.EtatOuverte(session);
+            case "Complète" -> new fr.ubordeaux.m1.model.states.EtatComplete(session);
+            case "Terminée" -> new fr.ubordeaux.m1.model.states.EtatTerminee(session);
+            case "Annulée" -> new fr.ubordeaux.m1.model.states.EtatAnnulee(session);
+            default -> new fr.ubordeaux.m1.model.states.EtatOuverte(session);
+        };
     }
 
     public List<Session> getSessions() {

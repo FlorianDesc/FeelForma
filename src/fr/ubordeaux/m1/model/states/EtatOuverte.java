@@ -12,7 +12,14 @@ public class EtatOuverte implements SessionState {
 
     @Override
     public void inscrire(Inscription inscription) {
-        session.confirmerInscription(inscription);
+        // Vérifier si la session est pleine avant d'inscrire
+        if (session.getNbInscrits() >= session.getNbPlacesMax()) {
+            // La session est pleine, mettre en liste d'attente
+            session.mettreEnListeAttente(inscription);
+        } else {
+            // La session a encore de la place, confirmer l'inscription
+            session.confirmerInscription(inscription);
+        }
     }
 
     @Override

@@ -22,7 +22,6 @@ import fr.ubordeaux.m1.view.component.CustomButton;
 import fr.ubordeaux.m1.view.component.CustomButton.Size;
 import fr.ubordeaux.m1.view.component.CustomButton.Variant;
 import fr.ubordeaux.m1.view.component.Sheet;
-import javafx.collections.FXCollections;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.ComboBox;
@@ -57,6 +56,14 @@ public class SessionViewImpl implements SessionView {
     private final ComboBox<String> fieldEtat;
     
     private final ComboBox<Apprenant> fieldApprenant;
+    
+    // Labels d'erreur pour le formulaire
+    private final Label errorDateDebut = new Label();
+    private final Label errorDateFin = new Label();
+    private final Label errorFormateur = new Label();
+    private final Label errorPlacesMax = new Label();
+    private final Label errorEtat = new Label();
+    private final Label infoEtat = new Label();
 
     private Session sessionEnEdition = null;
     private Session sessionPourInscription = null;
@@ -98,13 +105,13 @@ public class SessionViewImpl implements SessionView {
         fieldDateDebut = new DatePicker();
         fieldDateFin = new DatePicker();
         fieldFormateur = new ComboBox<>();
-        fieldFormateur.setItems(FXCollections.observableArrayList(dataService.getFormateurs()));
+        fieldFormateur.getItems().setAll(dataService.getFormateurs());
         fieldPlacesMax = new TextField();
         fieldEtat = new ComboBox<>();
-        fieldEtat.setItems(FXCollections.observableArrayList("Ouverte", "Complète", "Terminée", "Annulée"));
+        fieldEtat.getItems().setAll("Ouverte", "Complète", "Terminée", "Annulée");
         
         fieldApprenant = new ComboBox<>();
-        fieldApprenant.setItems(FXCollections.observableArrayList(dataService.getApprenants()));
+        fieldApprenant.getItems().setAll(dataService.getApprenants());
 
         sheet.setContent(creerFormulaireSheet());
         inscriptionSheet.setContent(creerFormulaireInscription());
@@ -302,13 +309,34 @@ public class SessionViewImpl implements SessionView {
         Label titre = new Label("Session");
         titre.setStyle("-fx-font-size: 20px; -fx-font-weight: bold;");
 
+        // Listener pour afficher l'avertissement en temps réel
+        fieldEtat.valueProperty().addListener((obs, oldVal, newVal) -> {
+            if (sessionEnEdition != null && newVal != null) {
+                try {
+                    int nbInscrits = sessionEnEdition.getNbInscrits();
+                    int nbPlacesMax = Integer.parseInt(fieldPlacesMax.getText());
+                    
+                    if (nbInscrits >= nbPlacesMax && newVal.equals("Ouverte")) {
+                        infoEtat.setText("⚠️ La session est complète, impossible de la passer en 'Ouverte'");
+                        infoEtat.setVisible(true);
+                        infoEtat.setManaged(true);
+                    } else {
+                        infoEtat.setVisible(false);
+                        infoEtat.setManaged(false);
+                    }
+                } catch (NumberFormatException e) {
+                    // Ignorer si le nombre de places n'est pas valide
+                }
+            }
+        });
+        
         VBox champs = new VBox(16);
         champs.getChildren().addAll(
-            creerChampFormulaireDatePicker("Date de début", fieldDateDebut),
-            creerChampFormulaireDatePicker("Date de fin", fieldDateFin),
-            creerChampFormulaireComboBox("Formateur", fieldFormateur),
-            creerChampFormulaire("Nombre de places max", fieldPlacesMax),
-            creerChampFormulaireComboBox("État", fieldEtat)
+            creerChampFormulaireDatePicker("Date de début", fieldDateDebut, errorDateDebut),
+            creerChampFormulaireDatePicker("Date de fin", fieldDateFin, errorDateFin),
+            creerChampFormulaireComboBox("Formateur", fieldFormateur, errorFormateur, null),
+            creerChampFormulaire("Nombre de places max", fieldPlacesMax, errorPlacesMax),
+            creerChampFormulaireComboBox("État", fieldEtat, errorEtat, infoEtat)
         );
 
         HBox boutons = new HBox(12);
@@ -320,6 +348,7 @@ public class SessionViewImpl implements SessionView {
         btnValider.setOnAction(e -> {
             if (validerFormulaire()) {
                 Formateur formateur = fieldFormateur.getValue();
+                String etatSelectionne = fieldEtat.getValue();
                 
                 Session nouvelle = new Session(
                         controller.getFormation(),
@@ -328,15 +357,17 @@ public class SessionViewImpl implements SessionView {
                         fieldDateFin.getValue(),
                         Integer.parseInt(fieldPlacesMax.getText())
                 );
-                
-                // Appliquer l'état sélectionné
-                SessionState etat = creerEtatDepuisLabel(fieldEtat.getValue(), nouvelle);
-                nouvelle.changeState(etat);
 
                 if (sessionEnEdition == null) {
+                    // Nouvelle session : ne peut être que "Ouverte" ou "Terminée" ou "Annulée" (pas "Complète" car vide)
+                    if (etatSelectionne.equals("Complète")) {
+                        etatSelectionne = "Ouverte"; // Forcer à Ouverte si l'utilisateur a choisi Complète
+                    }
+                    SessionState etat = creerEtatDepuisLabel(etatSelectionne, nouvelle);
+                    nouvelle.changeState(etat);
                     controller.ajouterSession(nouvelle);
                 } else {
-                    controller.modifierSession(sessionEnEdition, nouvelle);
+                    controller.modifierSession(sessionEnEdition, nouvelle, etatSelectionne);
                 }
 
                 sheet.close();
@@ -349,30 +380,46 @@ public class SessionViewImpl implements SessionView {
         return formulaire;
     }
 
-    private VBox creerChampFormulaire(String label, TextField field) {
-        VBox container = new VBox(8);
+    private VBox creerChampFormulaire(String label, TextField field, Label errorLabel) {
+        VBox container = new VBox(4);
         Label labelControl = new Label(label);
         field.setPrefHeight(36);
         field.setPrefWidth(350);
-        container.getChildren().addAll(labelControl, field);
+        errorLabel.setStyle("-fx-text-fill: red; -fx-font-size: 11px;");
+        errorLabel.setVisible(false);
+        errorLabel.setManaged(false);
+        container.getChildren().addAll(labelControl, field, errorLabel);
         return container;
     }
 
-    private VBox creerChampFormulaireDatePicker(String label, DatePicker field) {
-        VBox container = new VBox(8);
+    private VBox creerChampFormulaireDatePicker(String label, DatePicker field, Label errorLabel) {
+        VBox container = new VBox(4);
         Label labelControl = new Label(label);
         field.setPrefHeight(36);
         field.setPrefWidth(350);
-        container.getChildren().addAll(labelControl, field);
+        errorLabel.setStyle("-fx-text-fill: red; -fx-font-size: 11px;");
+        errorLabel.setVisible(false);
+        errorLabel.setManaged(false);
+        container.getChildren().addAll(labelControl, field, errorLabel);
         return container;
     }
 
-    private <T> VBox creerChampFormulaireComboBox(String label, ComboBox<T> field) {
-        VBox container = new VBox(8);
+    private <T> VBox creerChampFormulaireComboBox(String label, ComboBox<T> field, Label errorLabel, Label infoLabel) {
+        VBox container = new VBox(4);
         Label labelControl = new Label(label);
         field.setPrefHeight(36);
         field.setPrefWidth(350);
-        container.getChildren().addAll(labelControl, field);
+        errorLabel.setStyle("-fx-text-fill: red; -fx-font-size: 11px;");
+        errorLabel.setVisible(false);
+        errorLabel.setManaged(false);
+        if (infoLabel != null) {
+            infoLabel.setStyle("-fx-text-fill: #f39c12; -fx-font-size: 11px; -fx-font-style: italic;");
+            infoLabel.setVisible(false);
+            infoLabel.setManaged(false);
+            container.getChildren().addAll(labelControl, field, errorLabel, infoLabel);
+        } else {
+            container.getChildren().addAll(labelControl, field, errorLabel);
+        }
         return container;
     }
 
@@ -382,14 +429,111 @@ public class SessionViewImpl implements SessionView {
         fieldFormateur.setValue(null);
         fieldPlacesMax.clear();
         fieldEtat.setValue("Ouverte");
+        infoEtat.setVisible(false);
+        infoEtat.setManaged(false);
     }
 
     private boolean validerFormulaire() {
-        return fieldDateDebut.getValue() != null
-            && fieldDateFin.getValue() != null
-            && fieldFormateur.getValue() != null
-            && !fieldPlacesMax.getText().isEmpty()
-            && fieldEtat.getValue() != null;
+        // Réinitialiser les styles et erreurs
+        fieldDateDebut.setStyle("");
+        fieldDateFin.setStyle("");
+        fieldFormateur.setStyle("");
+        fieldPlacesMax.setStyle("");
+        fieldEtat.setStyle("");
+        
+        errorDateDebut.setVisible(false);
+        errorDateDebut.setManaged(false);
+        errorDateFin.setVisible(false);
+        errorDateFin.setManaged(false);
+        errorFormateur.setVisible(false);
+        errorFormateur.setManaged(false);
+        errorPlacesMax.setVisible(false);
+        errorPlacesMax.setManaged(false);
+        errorEtat.setVisible(false);
+        errorEtat.setManaged(false);
+        
+        boolean valide = true;
+        
+        // Validation de la date de début
+        if (fieldDateDebut.getValue() == null) {
+            fieldDateDebut.setStyle("-fx-border-color: red; -fx-border-width: 2px;");
+            errorDateDebut.setText("La date de début est obligatoire");
+            errorDateDebut.setVisible(true);
+            errorDateDebut.setManaged(true);
+            valide = false;
+        }
+        
+        // Validation de la date de fin
+        if (fieldDateFin.getValue() == null) {
+            fieldDateFin.setStyle("-fx-border-color: red; -fx-border-width: 2px;");
+            errorDateFin.setText("La date de fin est obligatoire");
+            errorDateFin.setVisible(true);
+            errorDateFin.setManaged(true);
+            valide = false;
+        }
+        
+        // Validation de la cohérence des dates
+        if (fieldDateDebut.getValue() != null && fieldDateFin.getValue() != null) {
+            if (fieldDateDebut.getValue().isAfter(fieldDateFin.getValue())) {
+                fieldDateDebut.setStyle("-fx-border-color: red; -fx-border-width: 2px;");
+                fieldDateFin.setStyle("-fx-border-color: red; -fx-border-width: 2px;");
+                errorDateDebut.setText("La date de début doit être avant la date de fin");
+                errorDateDebut.setVisible(true);
+                errorDateDebut.setManaged(true);
+                valide = false;
+            }
+        }
+        
+        // Validation du formateur
+        if (fieldFormateur.getValue() == null) {
+            fieldFormateur.setStyle("-fx-border-color: red; -fx-border-width: 2px;");
+            errorFormateur.setText("Le formateur est obligatoire");
+            errorFormateur.setVisible(true);
+            errorFormateur.setManaged(true);
+            valide = false;
+        }
+        
+        // Validation du nombre de places (doit être un nombre positif)
+        if (fieldPlacesMax.getText().trim().isEmpty()) {
+            fieldPlacesMax.setStyle("-fx-border-color: red; -fx-border-width: 2px;");
+            errorPlacesMax.setText("Le nombre de places ne peut pas être vide");
+            errorPlacesMax.setVisible(true);
+            errorPlacesMax.setManaged(true);
+            valide = false;
+        } else {
+            try {
+                int places = Integer.parseInt(fieldPlacesMax.getText().trim());
+                if (places <= 0) {
+                    fieldPlacesMax.setStyle("-fx-border-color: red; -fx-border-width: 2px;");
+                    errorPlacesMax.setText("Le nombre de places doit être un nombre positif");
+                    errorPlacesMax.setVisible(true);
+                    errorPlacesMax.setManaged(true);
+                    valide = false;
+                }
+            } catch (NumberFormatException e) {
+                fieldPlacesMax.setStyle("-fx-border-color: red; -fx-border-width: 2px;");
+                errorPlacesMax.setText("Le nombre de places doit être un nombre entier");
+                errorPlacesMax.setVisible(true);
+                errorPlacesMax.setManaged(true);
+                valide = false;
+            }
+        }
+        
+        // Validation de l'état
+        if (fieldEtat.getValue() == null) {
+            fieldEtat.setStyle("-fx-border-color: red; -fx-border-width: 2px;");
+            errorEtat.setText("L'état est obligatoire");
+            errorEtat.setVisible(true);
+            errorEtat.setManaged(true);
+            valide = false;
+        }
+        
+        // Vérifier si l'avertissement de session complète est affiché
+        if (infoEtat.isVisible()) {
+            valide = false;
+        }
+        
+        return valide;
     }
 
     private SessionState creerEtatDepuisLabel(String label, Session session) {
@@ -489,39 +633,7 @@ public class SessionViewImpl implements SessionView {
             }
         });
         
-        TableColumn<Apprenant, Void> colDesinscrire = new TableColumn<>("Action");
-        colDesinscrire.setPrefWidth(120);
-        colDesinscrire.setCellFactory(col -> new TableCell<>() {
-            private final CustomButton btn = new CustomButton("Désinscrire", Variant.DESTRUCTIVE, Size.SM);
-            {
-                btn.setOnAction(e -> {
-                    Apprenant apprenant = getTableView().getItems().get(getIndex());
-                    // Trouver et retirer l'inscription correspondante
-                    sessionPourInscription.getInscriptions().stream()
-                        .filter(i -> i.getApprenant().equals(apprenant))
-                        .findFirst()
-                        .ifPresent(inscription -> {
-                            sessionPourInscription.libererPlace(inscription);
-                            apprenant.retirerSessionSuivie(sessionPourInscription);
-                        });
-                    rafraichirFormulaireInscription();
-                    updateTable(controller.getSessions());
-                });
-            }
-            
-            @Override
-            protected void updateItem(Void item, boolean empty) {
-                super.updateItem(item, empty);
-                if (empty) {
-                    setGraphic(null);
-                } else {
-                    setGraphic(btn);
-                }
-                setAlignment(Pos.CENTER);
-            }
-        });
-        
-        tableInscritsInscription.getColumns().addAll(colNom, colPrenom, colEtatInscription, colDesinscrire);
+        tableInscritsInscription.getColumns().addAll(colNom, colPrenom, colEtatInscription);
         sectionInscrits.getChildren().addAll(titreInscrits, tableInscritsInscription);
 
         // Bouton fermer
@@ -570,19 +682,19 @@ public class SessionViewImpl implements SessionView {
             .map(Inscription::getApprenant)
             .toList());
         
-        tableInscritsInscription.setItems(FXCollections.observableArrayList(tousLesInscrits));
+        tableInscritsInscription.getItems().setAll(tousLesInscrits);
         
         // Mise à jour du ComboBox : retirer les apprenants déjà inscrits ou en attente
         List<Apprenant> apprenantsDisponibles = dataService.getApprenants().stream()
             .filter(a -> tousLesInscrits.stream().noneMatch(i -> i.equals(a)))
             .toList();
-        fieldApprenant.setItems(FXCollections.observableArrayList(apprenantsDisponibles));
+        fieldApprenant.getItems().setAll(apprenantsDisponibles);
         fieldApprenant.setValue(null);
     }
 
     @Override
     public void updateTable(List<Session> sessions) {
-        tableView.setItems(FXCollections.observableArrayList(sessions));
+        tableView.getItems().setAll(sessions);
         tableView.refresh();
     }
 
